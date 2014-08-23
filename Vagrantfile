@@ -25,7 +25,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     keystone.vm.network :private_network, ip: '192.168.50.12'
     keystone.vm.network :forwarded_port, guest: 5000, host: 5000
     keystone.vm.network :forwarded_port, guest: 35357, host: 35357
-    keystone.vm.provision "shell", path: "keystone.sh"
+    #keystone.vm.provision "shell", path: "keystone.sh"
+    keystone.vm.provision "shell", path: "keystone_dev.sh"
   end
 
 end
