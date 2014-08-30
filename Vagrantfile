@@ -29,4 +29,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     keystone.vm.provision "shell", path: "keystone_dev.sh"
   end
 
+  config.vm.define :glance do |glance|
+    glance.vm.hostname = 'glance-precise64'
+    glance.vm.network :private_network, ip: '192.168.50.13'
+    glance.vm.network :forwarded_port, guest: 9292, host: 9292
+    glance.vm.provision "shell", path: "glance.sh"
+  end
+
 end
