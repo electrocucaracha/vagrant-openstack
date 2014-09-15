@@ -4,7 +4,8 @@
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  config.vm.box = 'puphpet/ubuntu1404-x64'
+  config.vm.box = 'precise64'
+  config.vm.box_url = 'http://files.vagrantup.com/precise64.box'
 
   config.vm.define :rabbitmq do |rabbitmq|
     rabbitmq.vm.hostname = 'rabbitmq-precise64'
@@ -33,7 +34,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     glance.vm.hostname = 'glance-precise64'
     glance.vm.network :private_network, ip: '192.168.50.13'
     glance.vm.network :forwarded_port, guest: 9292, host: 9292
-    glance.vm.provision "shell", path: "glance.sh"
+    #glance.vm.provision "shell", path: "glance.sh"
+    glance.vm.provision "shell", path: "glance_dev.sh"
   end
 
 end
