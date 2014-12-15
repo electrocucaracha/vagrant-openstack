@@ -1,0 +1,6 @@
+vagrant-box : ubuntu/trusty64
+package-manager : apt
+message-broker-script: /rabbitmq.sh
+database-script : /mariadb.sh
+identity-script : /keystone.sh
+image-script: /glance.sh

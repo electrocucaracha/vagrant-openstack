@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # 1. Install OpenStack Image Service and dependencies
-echo "deb http://ubuntu-cloud.archive.canonical.com/ubuntu precise-updates/icehouse main" >>  /etc/apt/sources.list.d/icehouse.list
+echo "deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/juno main" >>  /etc/apt/sources.list.d/juno.list
 apt-get update
 apt-get --no-install-recommends -qqy install ubuntu-cloud-keyring
 apt-get update
-apt-get --no-install-recommends -qqy install glance
+apt-get --no-install-recommends -qqy install glance python-glanceclient
 
 # 2. Configure Database driver
 sqlite="sqlite:////var/lib/glance/glance.sqlite"
@@ -17,7 +17,7 @@ rm -f /var/lib/glance/glance.sqlite
 
 # 4. Generate tables
 apt-get --no-install-recommends -qqy install python-mysqldb
-glance-manage db_sync
+su -s /bin/sh -c "glance-manage db_sync" glance
 
 # 5. Configurate authorization token
 sed -i.bak "s/auth_host = 127.0.0.1/auth_host = 192.168.50.12/g" /etc/glance/glance-api.conf
