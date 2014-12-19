@@ -2,12 +2,13 @@
 # vi: set ft=ruby :
 
 conf = {
-  'vagrant-box'            => 'ubuntu/trusty64',
-  'package-manager'        => 'apt',
-  'message-broker-script'  => '/rabbitmq.sh',
-  'database-script'        => '/mysql.sh',
-  'identity-script'        => '/keystone.sh',
-  'image-script'           => '/glance.sh',
+  'vagrant-box'               => 'ubuntu/trusty64',
+  'package-manager'           => 'apt',
+  'message-broker-script'     => '/rabbitmq.sh',
+  'database-script'           => '/mysql.sh',
+  'identity-script'           => '/keystone.sh',
+  'image-script'              => '/glance.sh',
+  'compute-controller-script' => '/nova-controller.sh',
 }
 
 vd_conf = ENV.fetch('VD_CONF', 'etc/settings.yaml')
@@ -52,6 +53,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     image.vm.network :forwarded_port, guest: 9292, host: 9292
     image.vm.provision "shell", path: conf['package-manager'] + conf['image-script']
     #image.vm.provision "shell", path: conf['package-manager'] + "/glance_dev.sh"
+  end
+
+  config.vm.define :compute_controller do |compute_controller|
+    compute_controller.vm.hostname = 'compute-controller'
+    compute_controller.vm.network :private_network, ip: '192.168.50.14'
+    compute_controller.vm.network :forwarded_port, guest: 8774, host: 8774
+    compute_controller.vm.provision "shell", path: conf['package-manager'] + conf['compute-controller-script']
   end
 
 end
