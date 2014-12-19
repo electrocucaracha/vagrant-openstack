@@ -88,13 +88,6 @@ keystone endpoint-create \
 # 11.3 Nova endpoint
 keystone endpoint-create \
   --service_id=$(keystone service-list | awk '/ compute / {print $2}') \
-  --publicurl=http://192.168.50.14:8774 \
-  --internalurl=http://192.168.50.14:8774 \
-  --adminurl=http://192.168.50.14:8774
-
-# 11.4 Neutron endpoint
-keystone endpoint-create \
-  --service_id=$(keystone service-list | awk '/ network / {print $2}') \
-  --publicurl=http://192.168.50.16:9696 \
-  --internalurl=http://192.168.50.16:9696 \
-  --adminurl=http://192.168.50.16:9696
+  --publicurl=http://192.168.50.14:8774/v2/$(keystone tenant-list | awk '/ admin / {print $2}') \
+  --internalurl=http://192.168.50.14:8774/v2/$(keystone tenant-list | awk '/ admin / {print $2}') \
+  --adminurl=http://192.168.50.14:8774/v2/$(keystone tenant-list | awk '/ admin / {print $2}')
