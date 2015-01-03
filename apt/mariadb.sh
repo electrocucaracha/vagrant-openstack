@@ -8,6 +8,8 @@ apt-get install -y mariadb-server
 
 # 2. Configure remote access
 sed -i "s/127.0.0.1/192.168.50.11/g" /etc/mysql/my.cnf
+sed -i "s/\[mysqld\]/\[mysqld\]\ndefault-storage-engine = innodb\ninnodb_file_per_table\ncollation-server = utf8_general_ci\ninit-connect = 'SET NAMES utf8'\ncharacter-set-server = utf8/g" /etc/mysql/my.cnf
+
 service mysql restart
 
 echo -e "secure\nn\nY\nY\n\Y\n" | mysql_secure_installation
@@ -22,7 +24,7 @@ echo "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' IDENTIFIED BY 'secure
 mysql -uroot -psecure < create_keystone.sql
 
 # 3.2 Create Glance database
-echo "CREATE DATABASE glance CHARACTER SET utf8 COLLATE utf8_general_ci;" >> create_glance.sql
+echo "CREATE DATABASE glance;" >> create_glance.sql
 echo "GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'localhost' IDENTIFIED BY 'secure';" >> create_glance.sql
 echo "GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'%' IDENTIFIED BY 'secure';" >> create_glance.sql
 
