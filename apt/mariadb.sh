@@ -1,5 +1,7 @@
 #!/bin/bash
 
+my_ip=$(ip addr | awk '/eth1$/ { sub(/\/24/, "", $2); print $2}')
+
 # 1. Install database server
 apt-get update
 debconf-set-selections <<< 'mysql-server mysql-server/root_password password secure'
@@ -7,7 +9,7 @@ debconf-set-selections <<< 'mysql-server mysql-server/root_password_again passwo
 apt-get install -y mariadb-server
 
 # 2. Configure remote access
-sed -i "s/127.0.0.1/192.168.50.11/g" /etc/mysql/my.cnf
+sed -i "s/127.0.0.1/${my_ip}/g" /etc/mysql/my.cnf
 sed -i "s/\[mysqld\]/\[mysqld\]\ndefault-storage-engine = innodb\ninnodb_file_per_table\ncollation-server = utf8_general_ci\ninit-connect = 'SET NAMES utf8'\ncharacter-set-server = utf8/g" /etc/mysql/my.cnf
 
 service mysql restart
