@@ -1,9 +1,9 @@
 # 1. Install OpenStack Compute Controller Service and dependencies
 echo "deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/juno main" >>  /etc/apt/sources.list.d/juno.list
 apt-get update
-apt-get --no-install-recommends -qqy install ubuntu-cloud-keyring
+apt-get install -y ubuntu-cloud-keyring
 apt-get update
-apt-get --no-install-recommends -qqy install nova-api nova-cert nova-conductor nova-consoleauth nova-novncproxy nova-scheduler python-novaclient
+apt-get install -y nova-api nova-cert nova-conductor nova-consoleauth nova-novncproxy nova-scheduler python-novaclient
 
 # 2. Configure Nova Service
 echo "my_ip = 192.168.50.14" >> /etc/nova/nova.conf
@@ -41,7 +41,7 @@ echo "host = 192.168.50.13" >> /etc/nova/nova.conf
 rm /var/lib/nova/nova.sqlite
 
 # 5. Generate tables
-apt-get --no-install-recommends -qqy install python-mysqldb
+apt-get install -y python-mysqldb
 su -s /bin/sh -c "nova-manage db sync" nova
 
 # 6. Enable and start services

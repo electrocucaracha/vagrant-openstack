@@ -3,25 +3,25 @@
 # 1. Install OpenStack Identity Service and dependencies
 echo "deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/juno main" >>  /etc/apt/sources.list.d/juno.list
 apt-get update
-apt-get --no-install-recommends -qqy install ubuntu-cloud-keyring
+apt-get install -y ubuntu-cloud-keyring
 apt-get update
-apt-get --no-install-recommends -qqy install keystone python-keystoneclient
+apt-get install -y keystone python-keystoneclient
 
 # 2. Configure Database driver
 sqlite="sqlite:////var/lib/keystone/keystone.db"
 mysql="mysql://keystone:secure@192.168.50.11/keystone"
-sed -i.bak "s/${sqlite//\//\\/}/${mysql//\//\\/}/g" /etc/keystone/keystone.conf 
+sed -i "s/${sqlite//\//\\/}/${mysql//\//\\/}/g" /etc/keystone/keystone.conf 
 
 # 3. Remove default database file
 rm /var/lib/keystone/keystone.db
 
 # 4. Generate tables
-apt-get --no-install-recommends -qqy install python-mysqldb
+apt-get install -y python-mysqldb
 su -s /bin/sh -c "keystone-manage db_sync" keystone
 
 # 5. Configurate authorization token
 token=`openssl rand -hex 10`
-sed -i.bak "s/#admin_token=ADMIN/admin_token=${token}/g" /etc/keystone/keystone.conf 
+sed -i "s/#admin_token=ADMIN/admin_token=${token}/g" /etc/keystone/keystone.conf 
 
 # 6. Restart service
 service keystone restart

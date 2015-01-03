@@ -4,15 +4,13 @@
 apt-get update
 debconf-set-selections <<< 'mysql-server mysql-server/root_password password secure'
 debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password secure'
-apt-get install -qqy mariadb-server
+apt-get install -y mariadb-server
 
 # 2. Configure remote access
-sed -i.bak "s/127.0.0.1/192.168.50.11/g" /etc/mysql/my.cnf
-sed -i.bak "s/key_buffer/#key_buffer/g" /etc/mysql/my.cnf
-sed -i.bak "s/myisam-recover/#myisam-recover/g" /etc/mysql/my.cnf
+sed -i "s/127.0.0.1/192.168.50.11/g" /etc/mysql/my.cnf
 service mysql restart
 
-#echo -e "\nY\nsecure\nsecure\nY\n" | mysql_secure_installation
+echo -e "secure\nn\nY\nY\n\Y\n" | mysql_secure_installation
 
 # 3 Create OpenStack databases
 

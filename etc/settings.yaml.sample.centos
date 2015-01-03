@@ -1,6 +1,2 @@
 vagrant-box : chef/centos-7.0
 package-manager : yum
-message-broker-script: /rabbitmq.sh
-database-script : /mariadb.sh
-identity-script : /keystone.sh
-image-script: /glance.sh

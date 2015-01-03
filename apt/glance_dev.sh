@@ -2,7 +2,7 @@
 
 # 1. Install prerequisites
 apt-get update
-apt-get install --no-install-recommends -qqy git screen python-pip python-virtualenv python-dev libxml2-dev libxslt1-dev libsasl2-dev libsqlite3-dev libldap2-dev libffi-dev libmysqlclient-dev libpq-dev curl
+apt-get install -y git screen python-pip python-virtualenv python-dev libxml2-dev libxslt1-dev libsasl2-dev libsqlite3-dev libldap2-dev libffi-dev libmysqlclient-dev libpq-dev curl
 #apt-get build-dep -y glance
 
 # 2. Clone repository
