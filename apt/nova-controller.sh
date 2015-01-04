@@ -20,6 +20,7 @@ echo "novncproxy_host = 0.0.0.0" >> /etc/nova/nova.conf
 echo "novncproxy_port = 6080" >> /etc/nova/nova.conf
 echo "rpc_backend = rabbit" >> /etc/nova/nova.conf
 echo "rabbit_host = message-broker" >> /etc/nova/nova.conf
+echo "rabbit_password = secure" >> /etc/nova/nova.conf
 echo "auth_strategy = keystone" >> /etc/nova/nova.conf
 
 # 3. Configure Database driver
