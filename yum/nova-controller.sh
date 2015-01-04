@@ -15,8 +15,8 @@ yum install -y openstack-nova-api openstack-nova-cert openstack-nova-conductor o
 
 # 2. Configure Nova Service
 crudini --set /etc/nova/nova.conf DEFAULT my_ip 192.168.50.14
-crudini --set /etc/nova/nova.conf DEFAULT vncserver_listen 192.168.50.14
-crudini --set /etc/nova/nova.conf DEFAULT vncserver_proxyclient_address 192.168.50.14
+crudini --set /etc/nova/nova.conf DEFAULT novncproxy_host 0.0.0.0
+crudini --set /etc/nova/nova.conf DEFAULT novncproxy_port 6080
 crudini --set /etc/nova/nova.conf DEFAULT rpc_backend rabbit
 crudini --set /etc/nova/nova.conf DEFAULT rabbit_host 192.168.50.10
 crudini --set /etc/nova/nova.conf DEFAULT auth_strategy keystone
@@ -25,11 +25,12 @@ crudini --set /etc/nova/nova.conf DEFAULT auth_strategy keystone
 crudini --set /etc/nova/nova.conf database connection mysql://nova:secure@192.168.50.11/nova
 
 # 4. Configure Authentication
-crudini --set /etc/nova/nova.conf keystone_authtoken auth_uri http://192.168.50.12:5000/v2.0
 crudini --set /etc/nova/nova.conf keystone_authtoken identity_uri http://192.168.50.12:35357
 crudini --set /etc/nova/nova.conf keystone_authtoken admin_tenant_name service
 crudini --set /etc/nova/nova.conf keystone_authtoken admin_user nova
 crudini --set /etc/nova/nova.conf keystone_authtoken admin_password secure
+
+crudini --set /etc/nova/nova.conf paste_deploy flavor keystone
 
 crudini --set /etc/nova/nova.conf glance host 192.168.50.13
 
