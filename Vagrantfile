@@ -9,6 +9,7 @@ conf = {
   'identity-script'           => '/keystone.sh',
   'image-script'              => '/glance.sh',
   'compute-controller-script' => '/nova-controller.sh',
+  'compute-script'            => '/nova-compute.sh',
 }
 
 vd_conf = ENV.fetch('VD_CONF', 'etc/settings.yaml')
@@ -61,6 +62,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     compute_controller.vm.network :private_network, ip: '192.168.50.14'
     compute_controller.vm.network :forwarded_port, guest: 8774, host: 8774
     compute_controller.vm.provision "shell", path: conf['package-manager'] + conf['compute-controller-script']
+  end
+
+  config.vm.define :compute do |compute|
+    compute.vm.hostname = 'compute'
+    compute.vm.network :private_network, ip: '192.168.50.15'
+    compute.vm.provision "shell", path: conf['package-manager'] + conf['compute-script']
   end
 
 end
