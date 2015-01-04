@@ -16,8 +16,8 @@ apt-get install -y nova-api nova-cert nova-conductor nova-consoleauth nova-novnc
 
 # 2. Configure Nova Service
 echo "my_ip = ${my_ip}" >> /etc/nova/nova.conf
-echo "vncserver_listen = ${my_ip}" >> /etc/nova/nova.conf
-echo "vncserver_proxyclient_address = ${my_ip}" >> /etc/nova/nova.conf
+echo "novncproxy_host = 0.0.0.0" >> /etc/nova/nova.conf
+echo "novncproxy_port = 6080" >> /etc/nova/nova.conf
 echo "rpc_backend = rabbit" >> /etc/nova/nova.conf
 echo "rabbit_host = message-broker" >> /etc/nova/nova.conf
 echo "auth_strategy = keystone" >> /etc/nova/nova.conf
@@ -30,13 +30,10 @@ echo "connection = mysql://nova:secure@database/nova" >> /etc/nova/nova.conf
 # 4. Configure Authentication
 echo "" >> /etc/nova/nova.conf
 echo "[keystone_authtoken]" >> /etc/nova/nova.conf
+echo "identity_uri = http://identity:35357" >> /etc/nova/nova.conf
 echo "admin_tenant_name = service" >> /etc/nova/nova.conf
 echo "admin_user = nova" >> /etc/nova/nova.conf
 echo "admin_password = secure" >> /etc/nova/nova.conf
-echo "auth_port = 35357" >> /etc/nova/nova.conf
-echo "auth_host = identity" >> /etc/nova/nova.conf
-echo "auth_protocol = http" >> /etc/nova/nova.conf
-echo "auth_uri = http://identity:5000/" >> /etc/nova/nova.conf
 
 echo "" >> /etc/nova/nova.conf
 echo "[paste_deploy]" >> /etc/nova/nova.conf
@@ -54,9 +51,19 @@ apt-get install -y python-mysqldb
 su -s /bin/sh -c "nova-manage db sync" nova
 
 # 6. Restart services
-service nova-api restart
-service nova-cert restart
-service nova-consoleauth restart
-service nova-scheduler restart
-service nova-conductor restart
-service nova-novncproxy restart
+service nova-api stop
+service nova-cert stop
+service nova-consoleauth stop
+service nova-scheduler stop
+service nova-conductor stop
+service nova-novncproxy stop
+
+sleep 5
+service nova-api start
+sleep 15
+service nova-cert start
+service nova-consoleauth start
+service nova-scheduler start
+sleep 5
+service nova-conductor start
+service nova-novncproxy start
