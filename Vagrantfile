@@ -10,6 +10,7 @@ conf = {
   'image-script'              => '/glance.sh',
   'compute-controller-script' => '/nova-controller.sh',
   'compute-script'            => '/nova-compute.sh',
+  'dashboard-script'          => '/horizon.sh',
 }
 
 vd_conf = ENV.fetch('VD_CONF', 'etc/settings.yaml')
@@ -68,6 +69,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     compute.vm.hostname = 'compute'
     compute.vm.network :private_network, ip: '192.168.50.15'
     compute.vm.provision "shell", path: conf['package-manager'] + conf['compute-script']
+  end
+
+  config.vm.define :dashboard do |dashboard|
+    dashboard.vm.hostname = 'dashboard'
+    dashboard.vm.network :private_network, ip: '192.168.50.17'
+    dashboard.vm.network :forwarded_port, guest: 80, host: 8080
+    dashboard.vm.provision "shell", path: conf['package-manager'] + conf['dashboard-script']
   end
 
 end
