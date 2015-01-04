@@ -63,6 +63,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     compute_controller.vm.network :private_network, ip: '192.168.50.14'
     compute_controller.vm.network :forwarded_port, guest: 8774, host: 8774
     compute_controller.vm.provision "shell", path: conf['package-manager'] + conf['compute-controller-script']
+    compute_controller.vm.provider "virtualbox" do |v|
+      v.customize ["modifyvm", :id, "--memory", 2048]
+    end
   end
 
   config.vm.define :compute do |compute|
