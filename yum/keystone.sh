@@ -3,6 +3,13 @@
 # 0. Workaround for vagrant boxes
 sed -i "s/10.0.2.3/8.8.8.8/g" /etc/resolv.conf
 
+# 0.1 Setting Hostnames
+if [ -f /root/hostnames.sh ]
+then
+  source /root/hostnames.sh
+  echo "source /root/openstackrc" > /root/.bashrc
+fi
+
 # 1. Install OpenStack Identity Service and dependencies
 yum install -y yum-plugin-priorities
 yum install -y http://repos.fedorapeople.org/repos/openstack/openstack-juno/rdo-release-juno-1.noarch.rpm
@@ -14,7 +21,7 @@ yum update -y
 yum install -y openstack-keystone python-keystoneclient
 
 # 2. Configure Database driver
-crudini --set /etc/keystone/keystone.conf database connection  mysql://keystone:secure@192.168.50.11/keystone
+crudini --set /etc/keystone/keystone.conf database connection  mysql://keystone:secure@database/keystone
 
 # 3. Generate certificates and restrict access
 keystone-manage pki_setup --keystone-user keystone --keystone-group keystone
@@ -35,7 +42,7 @@ systemctl start openstack-keystone.service
 
 sleep 5
 export SERVICE_TOKEN="${token}"
-export SERVICE_ENDPOINT=http://127.0.0.1:35357/v2.0
+export SERVICE_ENDPOINT=http://localhost:35357/v2.0
 
 # 7. Create OpenStack tenants
 keystone tenant-create --name=admin --description="Admin Tenant"
@@ -58,10 +65,6 @@ keystone user-role-add --user=glance --tenant=service --role=admin
 keystone user-create --name=nova --pass=secure --email=nova@example.com
 keystone user-role-add --user=nova --tenant=service --role=admin
 
-# 9.4 Neutron user
-keystone user-create --name=neutron --pass=secure --email=neutron@example.com
-keystone user-role-add --user=neutron --tenant=service --role=admin
-
 # 10. Create OpenStack services
 
 # 10.1 Keystone service
@@ -73,28 +76,28 @@ keystone service-create --name=glance --type=image --description="OpenStack Imag
 # 10.3 Nova service
 keystone service-create --name=nova --type=compute --description="OpenStack Compute Service"
 
-# 10.4 Nova service
-keystone service-create --name=neutron --type=network --description="OpenStack Networking Service"
-
 # 11. Create OpenStack endpoints
 
 # 11.1 Keystone endpoint
 keystone endpoint-create \
   --service_id=$(keystone service-list | awk '/ identity / {print $2}') \
-  --publicurl=http://192.168.50.12:5000/v2.0 \
-  --internalurl=http://192.168.50.12:5000/v2.0 \
-  --adminurl=http://192.168.50.12:35357/v2.0
+  --publicurl=http://identity:5000/v2.0 \
+  --internalurl=http://identity:5000/v2.0 \
+  --adminurl=http://identity:35357/v2.0 \
+  --region=regionOne
 
 # 11.2 Glance endpoint
 keystone endpoint-create \
   --service_id=$(keystone service-list | awk '/ image / {print $2}') \
-  --publicurl=http://192.168.50.13:9292 \
-  --internalurl=http://192.168.50.13:9292 \
-  --adminurl=http://192.168.50.13:9292
+  --publicurl=http://image:9292 \
+  --internalurl=http://image:9292 \
+  --adminurl=http://image:9292 \
+  --region=regionOne
 
 # 11.3 Nova endpoint
 keystone endpoint-create \
   --service_id=$(keystone service-list | awk '/ compute / {print $2}') \
-  --publicurl=http://192.168.50.14:8774/v2/$(keystone tenant-list | awk '/ admin / {print $2}') \
-  --internalurl=http://192.168.50.14:8774/v2/$(keystone tenant-list | awk '/ admin / {print $2}') \
-  --adminurl=http://192.168.50.14:8774/v2/$(keystone tenant-list | awk '/ admin / {print $2}')
+  --publicurl=http://compute-controller:8774/v2/$(keystone tenant-list | awk '/ admin / {print $2}') \
+  --internalurl=http://compute-controller:8774/v2/$(keystone tenant-list | awk '/ admin / {print $2}') \
+  --adminurl=http://compute-controller:8774/v2/$(keystone tenant-list | awk '/ admin / {print $2}') \
+  --region=regionOne

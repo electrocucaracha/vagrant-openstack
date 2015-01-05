@@ -3,6 +3,8 @@
 # 0. Workaround for vagrant boxes
 sed -i "s/10.0.2.3/8.8.8.8/g" /etc/resolv.conf
 
+my_ip=$(ip addr | awk '/enp0s8$/ { sub(/\/24/, "", $2); print $2}')
+
 # 1. Install database server
 yum -y upgrade
 yum install -y mariadb-server
@@ -10,7 +12,7 @@ yum install -y mariadb-server
 # 2. Configure remote access
 cat <<EOL > /etc/my.cnf
 [mysqld]
-bind-address = 192.168.50.11
+bind-address = ${my_ip}
 default-storage-engine = innodb
 innodb_file_per_table
 collation-server = utf8_general_ci
