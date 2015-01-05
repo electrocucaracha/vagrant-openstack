@@ -1,4 +1,7 @@
 my_ip=$(ip addr | awk '/eth1$/ { sub(/\/24/, "", $2); print $2}')
+if [ -z "${my_ip}" ]; then
+  my_ip=$(ip addr | awk '/enp0s8$/ { sub(/\/24/, "", $2); print $2}')
+fi
 localhost_ip=127.0.0.1
 
 message_broker_ip=192.168.50.10
