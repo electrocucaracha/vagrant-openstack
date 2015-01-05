@@ -10,7 +10,7 @@ then
   echo "source /root/openstackrc" > /root/.bashrc
 fi
 
-# 1. Install OpenStack Identity Service and dependencies
+# 1. Install OpenStack Compute Service and dependencies
 yum install -y yum-plugin-priorities
 yum install -y http://repos.fedorapeople.org/repos/openstack/openstack-juno/rdo-release-juno-1.noarch.rpm
 yum install -y http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
@@ -26,6 +26,7 @@ crudini --set /etc/nova/nova.conf DEFAULT novncproxy_host 0.0.0.0
 crudini --set /etc/nova/nova.conf DEFAULT novncproxy_port 6080
 crudini --set /etc/nova/nova.conf DEFAULT rpc_backend rabbit
 crudini --set /etc/nova/nova.conf DEFAULT rabbit_host message-broker
+crudini --set /etc/nova/nova.conf DEFAULT rabbit_password secure
 crudini --set /etc/nova/nova.conf DEFAULT auth_strategy keystone
 
 # 3. Configure Database driver
