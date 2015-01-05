@@ -16,7 +16,7 @@ apt-get install -y  nova-compute sysfsutils
 
 # 2. Configure message broker service
 echo "rpc_backend = rabbit" >> /etc/nova/nova.conf
-echo "rabbit_host = message_broker" >> /etc/nova/nova.conf
+echo "rabbit_host = message-broker" >> /etc/nova/nova.conf
 echo "rabbit_password = secure" >> /etc/nova/nova.conf
 
 # 3. Configure VNC Server
@@ -24,6 +24,7 @@ echo "vnc_enabled = True" >> /etc/nova/nova.conf
 echo "vncserver_listen = 127.0.0.1" >> /etc/nova/nova.conf
 echo "vncserver_proxyclient_address = 127.0.0.1" >> /etc/nova/nova.conf
 echo "novncproxy_base_url = http://compute-controller:6080/vnc_auto.html" >> /etc/nova/nova.conf
+
 echo "my_ip = ${my_ip}" >> /etc/nova/nova.conf
 
 # 4. Configure Identity Service
