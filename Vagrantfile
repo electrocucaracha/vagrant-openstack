@@ -2,15 +2,16 @@
 # vi: set ft=ruby :
 
 conf = {
-  'vagrant-box'               => 'ubuntu/trusty64',
-  'package-manager'           => 'apt',
-  'message-broker-script'     => '/rabbitmq.sh',
-  'database-script'           => '/mariadb.sh',
-  'identity-script'           => '/keystone.sh',
-  'image-script'              => '/glance.sh',
-  'compute-controller-script' => '/nova-controller.sh',
-  'compute-script'            => '/nova-compute.sh',
-  'dashboard-script'          => '/horizon.sh',
+  'vagrant-box'                     => 'ubuntu/trusty64',
+  'package-manager'                 => 'apt',
+  'message-broker-script'           => '/rabbitmq.sh',
+  'database-script'                 => '/mariadb.sh',
+  'identity-script'                 => '/keystone.sh',
+  'image-script'                    => '/glance.sh',
+  'compute-controller-script'       => '/nova-controller.sh',
+  'compute-script'                  => '/nova-compute.sh',
+  'dashboard-script'                => '/horizon.sh',
+  'block-storage-controller-script' => '/cinder-controller.sh',
 }
 
 vd_conf = ENV.fetch('VD_CONF', 'etc/settings.yaml')
@@ -79,6 +80,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     dashboard.vm.network :private_network, ip: '192.168.50.17'
     dashboard.vm.network :forwarded_port, guest: 80, host: 8080
     dashboard.vm.provision "shell", path: conf['package-manager'] + conf['dashboard-script']
+  end
+
+  config.vm.define :block_storage_controller do |block_storage_controller|
+    block_storage_controller.vm.hostname = 'block-storage-controller'
+    block_storage_controller.vm.network :private_network, ip: '192.168.50.18'
+    block_storage_controller.vm.network :forwarded_port, guest: 8776, host: 8776
+    block_storage_controller.vm.provision "shell", path: conf['package-manager'] + conf['block-storage-controller-script']
   end
 
 end

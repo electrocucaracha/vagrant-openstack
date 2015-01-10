@@ -11,6 +11,7 @@ image_ip=192.168.50.13
 compute_controller_ip=192.168.50.14
 compute_ip=192.168.50.15
 dashboard_ip=192.168.50.17
+block_storage_controller_ip=192.168.50.18
 
 sed -i "/127.0.1.1/d" /etc/hosts
 echo "${message_broker_ip-192.168.50.10} message-broker message-broker" >> /etc/hosts
@@ -20,3 +21,4 @@ echo "${image_ip-192.168.50.13} image image" >> /etc/hosts
 echo "${compute_controller_ip-192.168.50.14} compute-controller compute-controller" >> /etc/hosts
 echo "${compute_ip-192.168.50.15} compute compute" >> /etc/hosts
 echo "${dashboard_ip-192.168.50.17} dashboard dashboard" >> /etc/hosts
+echo "${block_storage_controller_ip-192.168.50.18} block-storage-controller block-storage-controller" >> /etc/hosts

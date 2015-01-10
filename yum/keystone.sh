@@ -65,6 +65,10 @@ keystone user-role-add --user=glance --tenant=service --role=admin
 keystone user-create --name=nova --pass=secure --email=nova@example.com
 keystone user-role-add --user=nova --tenant=service --role=admin
 
+# 9.4 Cinder user
+keystone user-create --name=cinder --pass=secure --email=cinder@example.com
+keystone user-role-add --user=cinder --tenant=service --role=admin
+
 # 10. Create OpenStack services
 
 # 10.1 Keystone service
@@ -75,6 +79,10 @@ keystone service-create --name=glance --type=image --description="OpenStack Imag
 
 # 10.3 Nova service
 keystone service-create --name=nova --type=compute --description="OpenStack Compute Service"
+
+# 10.4 Cinder service
+keystone service-create --name=cinder --type=volume --description="OpenStack Block Storage Service"
+keystone service-create --name=cinderv2 --type=volumev2 --description="OpenStack Block Storage Service"
 
 # 11. Create OpenStack endpoints
 
@@ -100,4 +108,19 @@ keystone endpoint-create \
   --publicurl=http://compute-controller:8774/v2/$(keystone tenant-list | awk '/ admin / {print $2}') \
   --internalurl=http://compute-controller:8774/v2/$(keystone tenant-list | awk '/ admin / {print $2}') \
   --adminurl=http://compute-controller:8774/v2/$(keystone tenant-list | awk '/ admin / {print $2}') \
+  --region=regionOne
+
+# 11.4 Cinder endpoint
+keystone endpoint-create \
+  --service_id=$(keystone service-list | awk '/ volume / {print $2}') \
+  --publicurl=http://block-storage-controller:8776/v1/$(keystone tenant-list | awk '/ admin / {print $2}') \
+  --internalurl=http://block-storage-controller:8776/v1/$(keystone tenant-list | awk '/ admin / {print $2}') \
+  --adminurl=http://block-storage-controller:8776/v1/$(keystone tenant-list | awk '/ admin / {print $2}') \
+  --region=regionOne
+
+keystone endpoint-create \
+  --service_id=$(keystone service-list | awk '/ volumev2 / {print $2}') \
+  --publicurl=http://block-storage-controller:8776/v2/$(keystone tenant-list | awk '/ admin / {print $2}') \
+  --internalurl=http://block-storage-controller:8776/v2/$(keystone tenant-list | awk '/ admin / {print $2}') \
+  --adminurl=http://block-storage-controller:8776/v2/$(keystone tenant-list | awk '/ admin / {print $2}') \
   --region=regionOne

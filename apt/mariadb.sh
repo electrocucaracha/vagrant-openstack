@@ -39,9 +39,9 @@ echo "GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'%' IDENTIFIED BY 'secure';" >> c
 
 mysql -uroot -psecure < create_nova.sql
 
-# 3.4 Create Neutron database
-echo "CREATE DATABASE neutron;" >> create_neutron.sql
-echo "GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'localhost' IDENTIFIED BY 'secure';" >> create_neutron.sql
-echo "GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'%' IDENTIFIED BY 'secure';" >> create_neutron.sql
+# 3.4 Create Cinder database
+echo "CREATE DATABASE cinder;" >> create_cinder.sql
+echo "GRANT ALL PRIVILEGES ON cinder.* TO 'cinder'@'localhost' IDENTIFIED BY 'secure';" >> create_cinder.sql
+echo "GRANT ALL PRIVILEGES ON cinder.* TO 'cinder'@'%' IDENTIFIED BY 'secure';" >> create_cinder.sql
 
-mysql -uroot -psecure < create_neutron.sql
+mysql -uroot -psecure < create_cinder.sql
