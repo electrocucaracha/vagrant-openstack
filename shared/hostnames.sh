@@ -12,6 +12,7 @@ compute_controller_ip=192.168.50.14
 compute_ip=192.168.50.15
 dashboard_ip=192.168.50.17
 block_storage_controller_ip=192.168.50.18
+block_storage_ip=192.168.50.19
 
 sed -i "/127.0.1.1/d" /etc/hosts
 echo "${message_broker_ip-192.168.50.10} message-broker message-broker" >> /etc/hosts
@@ -22,3 +23,4 @@ echo "${compute_controller_ip-192.168.50.14} compute-controller compute-controll
 echo "${compute_ip-192.168.50.15} compute compute" >> /etc/hosts
 echo "${dashboard_ip-192.168.50.17} dashboard dashboard" >> /etc/hosts
 echo "${block_storage_controller_ip-192.168.50.18} block-storage-controller block-storage-controller" >> /etc/hosts
+echo "${block_storage_ip-192.168.50.19} block-storage block-storage" >> /etc/hosts

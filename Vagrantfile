@@ -4,6 +4,7 @@
 conf = {
   'vagrant-box'                     => 'ubuntu/trusty64',
   'package-manager'                 => 'apt',
+  'storage-controller'              => 'SATAController',
   'message-broker-script'           => '/rabbitmq.sh',
   'database-script'                 => '/mariadb.sh',
   'identity-script'                 => '/keystone.sh',
@@ -12,6 +13,7 @@ conf = {
   'compute-script'                  => '/nova-compute.sh',
   'dashboard-script'                => '/horizon.sh',
   'block-storage-controller-script' => '/cinder-controller.sh',
+  'block-storage-script'            => '/cinder-storage.sh',
 }
 
 vd_conf = ENV.fetch('VD_CONF', 'etc/settings.yaml')
@@ -87,6 +89,17 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     block_storage_controller.vm.network :private_network, ip: '192.168.50.18'
     block_storage_controller.vm.network :forwarded_port, guest: 8776, host: 8776
     block_storage_controller.vm.provision "shell", path: conf['package-manager'] + conf['block-storage-controller-script']
+  end
+
+  config.vm.define :block_storage do |block_storage|
+    block_storage.vm.hostname = 'block-storage'
+    block_storage.vm.network :private_network, ip: '192.168.50.19'
+    block_storage.vm.provision "shell", path: conf['package-manager'] + conf['block-storage-script']
+    block_storage.vm.provider "virtualbox" do |v|
+      file_to_disk='storage.vdi'
+      v.customize ['createhd', '--filename', file_to_disk, '--size', 50 * 1024]
+      v.customize ['storageattach', :id, '--storagectl', conf['storage-controller'], '--port', 1, '--device', 0, '--type', 'hdd', '--medium', file_to_disk]
+    end
   end
 
 end

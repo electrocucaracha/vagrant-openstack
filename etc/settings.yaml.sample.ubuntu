@@ -1,2 +1,3 @@
 vagrant-box : ubuntu/trusty64
 package-manager : apt
+storage-controller : SATAController

@@ -1,3 +1,5 @@
 .vagrant/
 etc/settings.yaml
 shared/.*
+*.vdi
+.DS_Store
