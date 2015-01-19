@@ -1,9 +1,8 @@
 #!/bin/bash
 
-# 0. Workaround for vagrant boxes
-sed -i "s/10.0.2.3/8.8.8.8/g" /etc/resolv.conf
-
-my_ip=$(ip addr | awk '/enp0s8$/ { sub(/\/24/, "", $2); print $2}')
+# 0. Post-installation
+/root/shared/proxy.sh
+source /root/shared/hostnames.sh
 
 # 1. Install database server
 yum -y upgrade

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# 0. Post-installation
+/root/shared/proxy.sh
+
 # 0. Declare variables
 token=`openssl rand -hex 10`
 echo "export SERVICE_TOKEN=${token}" >> openrc

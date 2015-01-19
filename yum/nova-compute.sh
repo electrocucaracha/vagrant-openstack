@@ -1,14 +1,9 @@
 #!/bin/bash
 
-# 0. Workaround for vagrant boxes
-sed -i "s/10.0.2.3/8.8.8.8/g" /etc/resolv.conf
-
-# 0.1 Setting Hostnames
-if [ -f /root/hostnames.sh ]
-then
-  source /root/hostnames.sh
-  echo "source /root/openstackrc" > /root/.bashrc
-fi
+# 0. Post-installation
+/root/shared/proxy.sh
+source /root/shared/hostnames.sh
+echo "source /root/shared/openstackrc" >> /root/.bashrc
 
 # 1. Install OpenStack Compute Service and dependencies
 yum install -y yum-plugin-priorities

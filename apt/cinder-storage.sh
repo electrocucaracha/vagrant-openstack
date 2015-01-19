@@ -1,12 +1,10 @@
 #!/bin/bash
 
-# 0. Setting Hostnames
-if [ -f /root/hostnames.sh ]
-then
-  source /root/hostnames.sh
-  echo "source /root/openstackrc" > /root/.bashrc
-fi
-    
+# 0. Post-installation
+/root/shared/proxy.sh
+source /root/shared/hostnames.sh
+echo "source /root/shared/openstackrc" >> /root/.bashrc
+
 # 1. Install Logical Volume Manager
 apt-get update
 apt-get install -y lvm2

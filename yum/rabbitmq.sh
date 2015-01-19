@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# 0. Workaround for vagrant boxes
-sed -i "s/10.0.2.3/8.8.8.8/g" /etc/resolv.conf
+# 0. Post-installation
+/root/shared/proxy.sh
 
 # 1. Install message broker server
 yum -y update

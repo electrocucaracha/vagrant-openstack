@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# 0. Post-installation
+/root/shared/proxy.sh
+
 # 1. Install prerequisites
 apt-get update
 apt-get install -y git screen python-pip python-virtualenv python-dev libxml2-dev libxslt1-dev libsasl2-dev libsqlite3-dev libldap2-dev libffi-dev libmysqlclient-dev libpq-dev curl

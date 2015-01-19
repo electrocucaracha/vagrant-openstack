@@ -1,6 +1,8 @@
 #!/bin/bash
 
-my_ip=$(ip addr | awk '/eth1$/ { sub(/\/24/, "", $2); print $2}')
+# 0. Post-installation
+/root/shared/proxy.sh
+source /root/shared/hostnames.sh
 
 # 1. Install database server
 apt-get update
