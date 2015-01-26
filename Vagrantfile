@@ -14,6 +14,8 @@ conf = {
   'dashboard-script'                => '/horizon.sh',
   'block-storage-controller-script' => '/cinder-controller.sh',
   'block-storage-script'            => '/cinder-storage.sh',
+  'nosql-database-script'           => '/mongodb.sh',
+  'telemetry-controller-script'     => '/ceilometer-controller.sh',
 }
 
 vd_conf = ENV.fetch('VD_CONF', 'etc/settings.yaml')
@@ -100,6 +102,20 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       v.customize ['createhd', '--filename', file_to_disk, '--size', 50 * 1024]
       v.customize ['storageattach', :id, '--storagectl', conf['storage-controller'], '--port', 1, '--device', 0, '--type', 'hdd', '--medium', file_to_disk]
     end
+  end
+
+  config.vm.define :nosql_database do |nosql_database|
+    nosql_database.vm.hostname = 'nosql-database'
+    nosql_database.vm.network :private_network, ip: '192.168.50.22'
+    nosql_database.vm.network :forwarded_port, guest: 27017, host: 27017
+    nosql_database.vm.provision "shell", path: conf['package-manager'] + conf['nosql-database-script']
+  end
+
+  config.vm.define :telemetry_controller do |telemetry_controller|
+    telemetry_controller.vm.hostname = 'telemetry-controller'
+    telemetry_controller.vm.network :private_network, ip: '192.168.50.23'
+    telemetry_controller.vm.network :forwarded_port, guest: 8777, host: 8777
+    telemetry_controller.vm.provision "shell", path: conf['package-manager'] + conf['telemetry-controller-script']
   end
 
 end
