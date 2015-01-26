@@ -5,7 +5,7 @@
 source /root/shared/hostnames.sh
 echo "source /root/shared/openstackrc" >> /root/.bashrc
 
-# 1. Install OpenStack Compute Service and dependencies
+# 1. Install OpenStack Block Storage Service and dependencies
 yum install -y yum-plugin-priorities
 yum install -y http://repos.fedorapeople.org/repos/openstack/openstack-juno/rdo-release-juno-1.noarch.rpm
 yum install -y http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
