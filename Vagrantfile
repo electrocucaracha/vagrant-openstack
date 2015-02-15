@@ -58,6 +58,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       all_in_one.vm.network :forwarded_port, guest: 8776, host: 8776
       all_in_one.vm.network :forwarded_port, guest: 8777, host: 8777
       all_in_one.vm.network :forwarded_port, guest: 80, host: 8080
+      all_in_one.vm.network :forwarded_port, guest: 6080, host: 6080
       all_in_one.vm.provider "virtualbox" do |v|
         v.customize ["modifyvm", :id, "--memory", 4 * 1024]
         v.customize ['createhd', '--filename', file_to_disk, '--size', 50 * 1024]

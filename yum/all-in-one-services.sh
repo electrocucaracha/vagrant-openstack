@@ -277,6 +277,11 @@ su -s /bin/sh -c "glance-manage db_sync" glance
 systemctl enable openstack-glance-api.service openstack-glance-registry.service
 systemctl start openstack-glance-api.service openstack-glance-registry.service
 
+source /root/.bashrc
+apt-get install -y python-glanceclient
+wget http://download.cirros-cloud.net/0.3.3/cirros-0.3.3-x86_64-disk.img
+glance image-create --name cirrus --file cirros-0.3.3-x86_64-disk.img --disk-format qcow2  --container-format bare --is-public True
+
 # Compute controller services
 
 # 1. Install OpenStack Compute Service and dependencies
@@ -310,6 +315,29 @@ su -s /bin/sh -c "nova-manage db sync" nova
 # 6. Enable and start services
 systemctl enable openstack-nova-api.service openstack-nova-cert.service openstack-nova-consoleauth.service openstack-nova-scheduler.service openstack-nova-conductor.service openstack-nova-novncproxy.service
 systemctl start openstack-nova-api.service openstack-nova-cert.service openstack-nova-consoleauth.service openstack-nova-scheduler.service openstack-nova-conductor.service openstack-nova-novncproxy.service
+
+# Controller - Networking services 
+
+crudini --set /etc/nova/nova.conf DEFAULT network_api_class nova.network.api.API
+crudini --set /etc/nova/nova.conf DEFAULT security_group_api nova
+
+systemctl restart openstack-nova-api.service  openstack-nova-scheduler.service openstack-nova-conductor.service
+
+# Compute - Networking services
+
+yum install -y openstack-nova-network
+
+crudini --set /etc/nova/nova.conf DEFAULT network_manager nova.network.manager.FlatDHCPManager
+crudini --set /etc/nova/nova.conf DEFAULT firewall_driver nova.virt.libvirt.firewall.IptablesFirewallDriver
+crudini --set /etc/nova/nova.conf DEFAULT public_interface eth0
+crudini --set /etc/nova/nova.conf DEFAULT vlan_interface eth0
+crudini --set /etc/nova/nova.conf DEFAULT flat_network_bridge br100
+crudini --set /etc/nova/nova.conf DEFAULT flat_interface eth0
+
+systemctl enable openstack-nova-network.service
+systemctl start openstack-nova-network.service
+
+nova network-create demo-net --bridge br100 --fixed-range-v4 203.0.113.24/29
 
 # OpenStack Dashboard
 

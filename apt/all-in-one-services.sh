@@ -5,9 +5,9 @@
 source /root/shared/hostnames_all-in-one.sh
 echo "source /root/shared/openstackrc-all-in-one" >> /root/.bashrc
 
-echo "deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/juno main" >>  /etc/apt/sources.list.d/juno.list
 apt-get install -y ubuntu-cloud-keyring
-apt-get update
+echo "deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/juno main" >>  /etc/apt/sources.list.d/juno.list
+apt-get update && apt-get dist-upgrade
 
 # Message broker
 
@@ -241,6 +241,11 @@ sed -i "s/#flavor=/flavor=keystone/g" /etc/glance/glance-registry.conf
 service glance-registry restart
 service glance-api restart
 
+source /root/.bashrc
+apt-get install -y python-glanceclient
+wget http://download.cirros-cloud.net/0.3.3/cirros-0.3.3-x86_64-disk.img
+glance image-create --name cirrus --file cirros-0.3.3-x86_64-disk.img --disk-format qcow2  --container-format bare --is-public True
+
 # Compute services
 
 # 1. Install OpenStack Compute Controller Service and dependencies
@@ -284,22 +289,30 @@ apt-get install -y python-mysqldb
 su -s /bin/sh -c "nova-manage db sync" nova
 
 # 6. Restart services
-service nova-api stop
-service nova-cert stop
-service nova-consoleauth stop
-service nova-scheduler stop
-service nova-conductor stop
-service nova-novncproxy stop
+service nova-api restart
+service nova-cert restart
+service nova-consoleauth restart
+service nova-scheduler restart
+service nova-conductor restart
+service nova-novncproxy restart
 
-sleep 5
-service nova-api start
-sleep 15
-service nova-cert start
-service nova-consoleauth start
-service nova-scheduler start
-sleep 5
-service nova-conductor start
-service nova-novncproxy start
+# Controller - Networking services 
+
+sed -i "s/\[DEFAULT\]/\[DEFAULT\]\nnetwork_api_class = nova.network.api.API\nsecurity_group_api = nova/g" /etc/nova/nova.conf
+
+service nova-api restart
+service nova-scheduler restart
+service nova-conductor restart
+
+# Compute - Networking services
+
+apt-get install -y  nova-network
+
+sed -i "s/\[DEFAULT\]/\[DEFAULT\]\nnetwork_manager=nova.network.manager.FlatDHCPManager\nfirewall_driver=nova.virt.libvirt.firewall.IptablesFirewallDriver\npublic_interface=eth0\nvlan_interface=eth0\nflat_network_bridge=br100\nflat_interface=eth0/g" /etc/nova/nova.conf
+
+service nova-network restart
+
+nova network-create demo-net --bridge br100 --fixed-range-v4 203.0.113.24/29
 
 # Dashboard
 
@@ -389,34 +402,6 @@ service ceilometer-alarm-notifier restart
 
 # 1. Install compute packages
 apt-get install -y  nova-compute sysfsutils
-
-# 2. Configure message broker service
-echo "rpc_backend = rabbit" >> /etc/nova/nova.conf
-echo "rabbit_host = all-in-one" >> /etc/nova/nova.conf
-echo "rabbit_password = secure" >> /etc/nova/nova.conf
-
-# 3. Configure VNC Server
-echo "vnc_enabled = True" >> /etc/nova/nova.conf
-echo "vncserver_listen = 127.0.0.1" >> /etc/nova/nova.conf
-echo "vncserver_proxyclient_address = 127.0.0.1" >> /etc/nova/nova.conf
-echo "novncproxy_base_url = http://all-in-one:6080/vnc_auto.html" >> /etc/nova/nova.conf
-
-echo "my_ip = ${my_ip}" >> /etc/nova/nova.conf
-
-# 4. Configure Identity Service
-echo "auth_strategy = keystone" >> /etc/nova/nova.conf
-echo "" >> /etc/nova/nova.conf
-echo "[keystone_authtoken]" >> /etc/nova/nova.conf
-echo "auth_uri = http://all-in-one:5000/v2.0" >> /etc/nova/nova.conf
-echo "identity_uri = http://all-in-one:35357" >> /etc/nova/nova.conf
-echo "admin_tenant_name = service" >> /etc/nova/nova.conf
-echo "admin_user = nova" >> /etc/nova/nova.conf
-echo "admin_password = secure" >> /etc/nova/nova.conf
-
-# 5. Configure Image Service
-echo "" >> /etc/nova/nova.conf
-echo "[glance]" >> /etc/nova/nova.conf
-echo "host = all-in-one" >> /etc/nova/nova.conf
 
 # 6. Use KVM or QEMU
 supports_hardware_acceleration=`egrep -c '(vmx|svm)' /proc/cpuinfo`
