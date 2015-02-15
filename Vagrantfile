@@ -23,7 +23,8 @@ conf = {
   'controller-services-script'      => '/controller-services.sh',
   'compute-services-script'         => '/compute-services.sh',
   'block-storage-services-script'   => '/block-storage-services.sh',
-  'all-in-one-script'               => '/all-in-one-services.sh'
+  'all-in-one-script'               => '/all-in-one-services.sh',
+  'enable-rally'                    => 'true'
 }
 
 file_to_disk='storage.vdi'
@@ -198,4 +199,17 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
 
   end
+
+  if conf['enable-rally'] == 'true'
+    config.vm.define :benchmark do |benchmark|
+      benchmark.vm.hostname = 'benchmark'
+      benchmark.vm.network :private_network, ip: '192.168.50.9'
+      benchmark.vm.network :forwarded_port, guest: 80 , host: 8081
+      benchmark.vm.provider "virtualbox" do |v|
+        v.customize ["modifyvm", :id, "--memory", 2 * 1024]
+      end
+      benchmark.vm.provision "shell", path: conf['package-manager'] + '/rally_' + conf['deployment-style'] + '.sh'
+    end
+  end
+
 end
