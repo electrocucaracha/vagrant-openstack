@@ -76,6 +76,6 @@ sleep 5
 # 4. Create ceilometer database
 mongo --host supporting-services --eval '
 db = db.getSiblingDB("ceilometer");
-db.createUser({user: "ceilometer",
+db.addUser({user: "ceilometer",
 pwd: "secure",
 roles: [ "readWrite", "dbAdmin" ]})'
