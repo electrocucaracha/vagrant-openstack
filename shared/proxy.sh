@@ -30,10 +30,6 @@ then
   echo "http_proxy=${http_proxy}" >> /etc/wgetrc
   echo "https_proxy=${https_proxy}" >> /etc/wgetrc
 else
-  # CentOS
-  if [ -f /etc/yum.conf ]
-    then
-    # 0. Workaround for vagrant boxes
-    sed -i "s/10.0.2.3/8.8.8.8/g" /etc/resolv.conf
-  fi
+  # 0. Workaround for vagrant boxes
+  sed -i "s/10.0.2.3/8.8.8.8/g" /etc/resolv.conf
 fi
