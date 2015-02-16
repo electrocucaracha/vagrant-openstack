@@ -4,12 +4,13 @@
 /root/shared/proxy.sh
 source /root/shared/hostnames_group.sh
 echo "source /root/shared/openstackrc-group" >> /root/.bashrc
+source /root/.bashrc
 
 # 1. Install compute packages
-echo "deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/juno main" >>  /etc/apt/sources.list.d/juno.list
 apt-get install -y ubuntu-cloud-keyring
-apt-get update
-apt-get install -y  nova-compute sysfsutils
+echo "deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/juno main" >>  /etc/apt/sources.list.d/juno.list
+apt-get update && apt-get dist-upgrade
+apt-get install -y nova-compute sysfsutils nova-network nova-api-metadata
 
 # 2. Configure message broker service
 echo "rpc_backend = rabbit" >> /etc/nova/nova.conf
@@ -17,12 +18,17 @@ echo "rabbit_host = supporting-services" >> /etc/nova/nova.conf
 echo "rabbit_password = secure" >> /etc/nova/nova.conf
 
 # 3. Configure VNC Server
-echo "vnc_enabled = True" >> /etc/nova/nova.conf
-echo "vncserver_listen = 127.0.0.1" >> /etc/nova/nova.conf
-echo "vncserver_proxyclient_address = 127.0.0.1" >> /etc/nova/nova.conf
-echo "novncproxy_base_url = http://controller-services:6080/vnc_auto.html" >> /etc/nova/nova.conf
-
 echo "my_ip = ${my_ip}" >> /etc/nova/nova.conf
+echo "vnc_enabled = True" >> /etc/nova/nova.conf
+echo "vncserver_listen = 0.0.0.0" >> /etc/nova/nova.conf
+echo "vncserver_proxyclient_address = ${my_ip}" >> /etc/nova/nova.conf
+echo "novncproxy_base_url = http://controller-services:6080/vnc_auto.html" >> /etc/nova/nova.conf
+echo "network_manager=nova.network.manager.FlatDHCPManager" >> /etc/nova/nova.conf 
+echo "firewall_driver=nova.virt.libvirt.firewall.IptablesFirewallDriver" >> /etc/nova/nova.conf 
+echo "public_interface=eth0" >> /etc/nova/nova.conf
+echo "vlan_interface=eth0" >> /etc/nova/nova.conf 
+echo "flat_network_bridge=br100" >> /etc/nova/nova.conf
+echo "flat_interface=eth0" >> /etc/nova/nova.conf
 
 # 4. Configure Identity Service
 echo "auth_strategy = keystone" >> /etc/nova/nova.conf
@@ -50,3 +56,7 @@ rm /var/lib/nova/nova.sqlite
 
 # 8. Restart service
 service nova-compute restart
+service nova-network restart
+service nova-api-metadata restart
+
+#nova network-create demo-net --bridge br100 --fixed-range-v4 203.0.113.24/29

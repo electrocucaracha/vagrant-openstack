@@ -89,8 +89,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       controller_services.vm.network :forwarded_port, guest: 8776, host: 8776
       controller_services.vm.network :forwarded_port, guest: 8777, host: 8777
       controller_services.vm.network :forwarded_port, guest: 80, host: 8080
+      controller_services.vm.network :forwarded_port, guest: 6080, host: 6080
       controller_services.vm.provider "virtualbox" do |v|
-        v.customize ["modifyvm", :id, "--memory", 2048]
+        v.customize ["modifyvm", :id, "--memory", 2 * 1024]
       end
       controller_services.vm.provision "shell", path: conf['package-manager'] + conf['controller-services-script']
     end
@@ -99,6 +100,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       compute_services.vm.hostname = 'compute-services'
       compute_services.vm.network :private_network, ip: '192.168.50.12'
       compute_services.vm.provision "shell", path: conf['package-manager'] + conf['compute-services-script']
+      compute_services.vm.provider "virtualbox" do |v|
+        v.customize ["modifyvm", :id, "--memory", 3 * 1024]
+      end
     end
 
     config.vm.define :block_storage_services do |block_storage_services|

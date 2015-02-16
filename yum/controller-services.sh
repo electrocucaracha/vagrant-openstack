@@ -167,6 +167,11 @@ su -s /bin/sh -c "glance-manage db_sync" glance
 systemctl enable openstack-glance-api.service openstack-glance-registry.service
 systemctl start openstack-glance-api.service openstack-glance-registry.service
 
+# 6. Include default image
+source /root/.bashrc
+wget http://download.cirros-cloud.net/0.3.3/cirros-0.3.3-x86_64-disk.img
+glance image-create --name cirrus --file cirros-0.3.3-x86_64-disk.img --disk-format qcow2  --container-format bare --is-public True
+
 # Compute controller services
 
 # 1. Install OpenStack Compute Service and dependencies
@@ -192,7 +197,7 @@ crudini --set /etc/nova/nova.conf keystone_authtoken admin_password secure
 
 crudini --set /etc/nova/nova.conf paste_deploy flavor keystone
 
-crudini --set /etc/nova/nova.conf glance host image
+crudini --set /etc/nova/nova.conf glance host controller-services
 
 # 5. Generate tables
 su -s /bin/sh -c "nova-manage db sync" nova

@@ -7,7 +7,7 @@ echo "source /root/shared/openstackrc-group" >> /root/.bashrc
 
 echo "deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/juno main" >>  /etc/apt/sources.list.d/juno.list
 apt-get install -y ubuntu-cloud-keyring
-apt-get update
+apt-get update && apt-get dist-upgrade
 
 # 1. Install OpenStack Identity Service and dependencies
 apt-get install -y keystone python-keystoneclient
@@ -165,6 +165,14 @@ sed -i "s/#flavor=/flavor=keystone/g" /etc/glance/glance-registry.conf
 service glance-registry restart
 service glance-api restart
 
+sleep 5
+
+# 7. Include default image
+source /root/.bashrc
+apt-get install -y python-glanceclient
+wget http://download.cirros-cloud.net/0.3.3/cirros-0.3.3-x86_64-disk.img
+glance image-create --name cirrus --file cirros-0.3.3-x86_64-disk.img --disk-format qcow2  --container-format bare --is-public True
+
 # Compute services
 
 # 1. Install OpenStack Compute Controller Service and dependencies
@@ -172,12 +180,14 @@ apt-get install -y nova-api nova-cert nova-conductor nova-consoleauth nova-novnc
 
 # 2. Configure Nova Service
 echo "my_ip = ${my_ip}" >> /etc/nova/nova.conf
-echo "novncproxy_host = 0.0.0.0" >> /etc/nova/nova.conf
-echo "novncproxy_port = 6080" >> /etc/nova/nova.conf
+echo "vncserver_listen = ${my_ip}" >> /etc/nova/nova.conf
+echo "vncserver_proxyclient_address = ${my_ip}" >> /etc/nova/nova.conf
 echo "rpc_backend = rabbit" >> /etc/nova/nova.conf
 echo "rabbit_host = supporting-services" >> /etc/nova/nova.conf
 echo "rabbit_password = secure" >> /etc/nova/nova.conf
 echo "auth_strategy = keystone" >> /etc/nova/nova.conf
+echo "network_api_class = nova.network.api.API" >> /etc/nova/nova.conf
+echo "security_group_api = nova" >> /etc/nova/nova.conf
 
 # 3. Configure Database driver
 echo "" >> /etc/nova/nova.conf
@@ -208,22 +218,12 @@ apt-get install -y python-mysqldb
 su -s /bin/sh -c "nova-manage db sync" nova
 
 # 6. Restart services
-service nova-api stop
-service nova-cert stop
-service nova-consoleauth stop
-service nova-scheduler stop
-service nova-conductor stop
-service nova-novncproxy stop
-
-sleep 5
-service nova-api start
-sleep 15
-service nova-cert start
-service nova-consoleauth start
-service nova-scheduler start
-sleep 5
-service nova-conductor start
-service nova-novncproxy start
+service nova-api restart
+service nova-cert restart
+service nova-consoleauth restart
+service nova-scheduler restart
+service nova-conductor restart
+service nova-novncproxy restart
 
 # Dashboard
 
