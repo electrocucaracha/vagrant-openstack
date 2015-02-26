@@ -51,3 +51,5 @@ rm /var/lib/nova/nova.sqlite
 
 # 8. Restart service
 service nova-compute restart
+service nova-network restart
+service nova-api-metadata restart
