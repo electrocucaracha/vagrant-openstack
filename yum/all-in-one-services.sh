@@ -7,22 +7,21 @@ echo "source /root/shared/openstackrc-all-in-one" >> /root/.bashrc
 
 yum install -y yum-plugin-priorities
 yum install -y http://repos.fedorapeople.org/repos/openstack/openstack-juno/rdo-release-juno-1.noarch.rpm
-yum install -y http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+yum install -y http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
 yum install -y openstack-utils
 yum upgrade -y
 yum clean all
 yum update -y
 
 # 1. Install message broker server
-wget http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 wget http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
-rpm -Uvh remi-release-6*.rpm epel-release-6*.rpm
+rpm -Uvh remi-release-6*.rpm
 
 yum install -y erlang
 
-wget http://www.rabbitmq.com/releases/rabbitmq-server/v3.2.2/rabbitmq-server-3.2.2-1.noarch.rpm
+wget http://www.rabbitmq.com/releases/rabbitmq-server/v3.4.4/rabbitmq-server-3.4.4-1.noarch.rpm
 rpm --import http://www.rabbitmq.com/rabbitmq-signing-key-public.asc
-yum install -y rabbitmq-server-3.2.2-1.noarch.rpm
+yum install -y rabbitmq-server-3.4.4-1.noarch.rpm
 
 # 2. Enable and start service
 chkconfig rabbitmq-server on
@@ -34,7 +33,7 @@ rabbitmqctl change_password guest secure
 # Database
 
 # 1. Install database server
-yum install -y mariadb-server
+yum install -y mariadb mariadb-server MySQL-python
 
 # 2. Configure remote access
 cat <<EOL > /etc/my.cnf
