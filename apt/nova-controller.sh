@@ -50,19 +50,9 @@ apt-get install -y python-mysqldb
 su -s /bin/sh -c "nova-manage db sync" nova
 
 # 6. Restart services
-service nova-api stop
-service nova-cert stop
-service nova-consoleauth stop
-service nova-scheduler stop
-service nova-conductor stop
-service nova-novncproxy stop
-
-sleep 5
-service nova-api start
-sleep 15
-service nova-cert start
-service nova-consoleauth start
-service nova-scheduler start
-sleep 5
-service nova-conductor start
-service nova-novncproxy start
+service nova-api restart
+service nova-cert restart
+service nova-consoleauth restart
+service nova-scheduler restart
+service nova-conductor restart
+service nova-novncproxy restart
