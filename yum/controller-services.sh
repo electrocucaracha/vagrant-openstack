@@ -107,24 +107,24 @@ keystone endpoint-create \
 # 11.3 Nova endpoint
 keystone endpoint-create \
   --service_id=$(keystone service-list | awk '/ compute / {print $2}') \
-  --publicurl=http://controller-services:8774/v2/$(keystone tenant-list | awk '/ admin / {print $2}') \
-  --internalurl=http://controller-services:8774/v2/$(keystone tenant-list | awk '/ admin / {print $2}') \
-  --adminurl=http://controller-services:8774/v2/$(keystone tenant-list | awk '/ admin / {print $2}') \
+  --publicurl=http://controller-services:8774/v2/%\(tenant_id\)s \
+  --internalurl=http://controller-services:8774/v2/%\(tenant_id\)s \
+  --adminurl=http://controller-services:8774/v2/%\(tenant_id\)s \
   --region=regionOne
 
 # 11.4 Cinder endpoint
 keystone endpoint-create \
   --service_id=$(keystone service-list | awk '/ volume / {print $2}') \
-  --publicurl=http://controller-services:8776/v1/$(keystone tenant-list | awk '/ admin / {print $2}') \
-  --internalurl=http://controller-services:8776/v1/$(keystone tenant-list | awk '/ admin / {print $2}') \
-  --adminurl=http://controller-services:8776/v1/$(keystone tenant-list | awk '/ admin / {print $2}') \
+  --publicurl=http://controller-services:8776/v1/%\(tenant_id\)s \
+  --internalurl=http://controller-services:8776/v1/%\(tenant_id\)s \
+  --adminurl=http://controller-services:8776/v1/%\(tenant_id\)s \
   --region=regionOne
 
 keystone endpoint-create \
   --service_id=$(keystone service-list | awk '/ volumev2 / {print $2}') \
-  --publicurl=http://controller-services:8776/v2/$(keystone tenant-list | awk '/ admin / {print $2}') \
-  --internalurl=http://controller-services:8776/v2/$(keystone tenant-list | awk '/ admin / {print $2}') \
-  --adminurl=http://controller-services:8776/v2/$(keystone tenant-list | awk '/ admin / {print $2}') \
+  --publicurl=http://controller-services:8776/v2/%\(tenant_id\)s \
+  --internalurl=http://controller-services:8776/v2/%\(tenant_id\)s \
+  --adminurl=http://controller-services:8776/v2/%\(tenant_id\)s \
   --region=regionOne
 
 # 11.5 Ceilometer endpoint

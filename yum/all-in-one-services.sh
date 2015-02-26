@@ -217,24 +217,24 @@ keystone endpoint-create \
 # 11.3 Nova endpoint
 keystone endpoint-create \
   --service_id=$(keystone service-list | awk '/ compute / {print $2}') \
-  --publicurl=http://all-in-one:8774/v2/$(keystone tenant-list | awk '/ admin / {print $2}') \
-  --internalurl=http://all-in-one:8774/v2/$(keystone tenant-list | awk '/ admin / {print $2}') \
-  --adminurl=http://all-in-one:8774/v2/$(keystone tenant-list | awk '/ admin / {print $2}') \
+  --publicurl=http://all-in-one:8774/v2/%\(tenant_id\)s \
+  --internalurl=http://all-in-one:8774/v2/%\(tenant_id\)s \
+  --adminurl=http://all-in-one:8774/v2/%\(tenant_id\)s \
   --region=regionOne
 
 # 11.4 Cinder endpoint
 keystone endpoint-create \
   --service_id=$(keystone service-list | awk '/ volume / {print $2}') \
-  --publicurl=http://all-in-one:8776/v1/$(keystone tenant-list | awk '/ admin / {print $2}') \
-  --internalurl=http://all-in-one:8776/v1/$(keystone tenant-list | awk '/ admin / {print $2}') \
-  --adminurl=http://all-in-one:8776/v1/$(keystone tenant-list | awk '/ admin / {print $2}') \
+  --publicurl=http://all-in-one:8776/v1/%\(tenant_id\)s \
+  --internalurl=http://all-in-one:8776/v1/%\(tenant_id\)s \
+  --adminurl=http://all-in-one:8776/v1/%\(tenant_id\)s \
   --region=regionOne
 
 keystone endpoint-create \
   --service_id=$(keystone service-list | awk '/ volumev2 / {print $2}') \
-  --publicurl=http://all-in-one:8776/v2/$(keystone tenant-list | awk '/ admin / {print $2}') \
-  --internalurl=http://all-in-one:8776/v2/$(keystone tenant-list | awk '/ admin / {print $2}') \
-  --adminurl=http://all-in-one:8776/v2/$(keystone tenant-list | awk '/ admin / {print $2}') \
+  --publicurl=http://all-in-one:8776/v2/%\(tenant_id\)s \
+  --internalurl=http://all-in-one:8776/v2/%\(tenant_id\)s \
+  --adminurl=http://all-in-one:8776/v2/%\(tenant_id\)s \
   --region=regionOne
 
 # 11.5 Ceilometer endpoint
@@ -316,7 +316,7 @@ su -s /bin/sh -c "nova-manage db sync" nova
 systemctl enable openstack-nova-api.service openstack-nova-cert.service openstack-nova-consoleauth.service openstack-nova-scheduler.service openstack-nova-conductor.service openstack-nova-novncproxy.service
 systemctl start openstack-nova-api.service openstack-nova-cert.service openstack-nova-consoleauth.service openstack-nova-scheduler.service openstack-nova-conductor.service openstack-nova-novncproxy.service
 
-# Controller - Networking services 
+# Controller - Networking services
 
 crudini --set /etc/nova/nova.conf DEFAULT network_api_class nova.network.api.API
 crudini --set /etc/nova/nova.conf DEFAULT security_group_api nova
