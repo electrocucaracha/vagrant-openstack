@@ -8,13 +8,13 @@ then
   if [ -f /etc/apt/apt.conf ]
   then
     echo "Acquire::http::Proxy \"${http_proxy}\";" >>  /etc/apt/apt.conf
-    echo "Acquire::https::Proxy \"${http_proxy}\";" >>  /etc/apt/apt.conf
+    echo "Acquire::https::Proxy \"${https_proxy}\";" >>  /etc/apt/apt.conf
   fi
 
   if [ -d /etc/apt/apt.conf.d ]
   then
     echo "Acquire::http::Proxy \"${http_proxy}\";" >>  /etc/apt/apt.conf.d/70proxy.conf
-    echo "Acquire::https::Proxy \"${http_proxy}\";" >>  /etc/apt/apt.conf.d/70proxy.conf
+    echo "Acquire::https::Proxy \"${https_proxy}\";" >>  /etc/apt/apt.conf.d/70proxy.conf
   fi
 
   # CentOS
@@ -23,9 +23,19 @@ then
     echo "proxy=${http_proxy}" >> /etc/yum.conf
   fi
 
-  echo "export http_proxy=${http_proxy}" >> /etc/bashrc
-  echo "export https_proxy=${https_proxy}" >> /etc/bashrc
-  echo "export no_proxy=${no_proxy}" >> /etc/bashrc
+  if [ -f /etc/bashrc ]
+  then
+    echo "export http_proxy=${http_proxy}" >> /etc/bashrc
+    echo "export https_proxy=${https_proxy}" >> /etc/bashrc
+    echo "export no_proxy=${no_proxy}" >> /etc/bashrc
+  fi
+
+  if [ -f /etc/bash.bashrc ]
+  then
+    echo "export http_proxy=${http_proxy}" >> /etc/bash.bashrc
+    echo "export https_proxy=${https_proxy}" >> /etc/bash.bashrc
+    echo "export no_proxy=${no_proxy}" >> /etc/bash.bashrc
+  fi
 
   echo "http_proxy=${http_proxy}" >> /etc/wgetrc
   echo "https_proxy=${https_proxy}" >> /etc/wgetrc
