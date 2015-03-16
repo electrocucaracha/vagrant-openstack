@@ -207,6 +207,8 @@ keystone endpoint-create \
   --adminurl=http://all-in-one:8777 \
   --region=regionOne
 
+unset SERVICE_TOKEN SERVICE_ENDPOINT
+
 # Image Service
 
 # 1. Install OpenStack Image Service and dependencies
@@ -243,10 +245,11 @@ service glance-api restart
 
 sleep 5
 
-source /root/.bashrc
+source /root/shared/openstackrc-all-in-one
 apt-get install -y python-glanceclient
-wget http://download.cirros-cloud.net/0.3.3/cirros-0.3.3-x86_64-disk.img
-glance image-create --name cirrus --file cirros-0.3.3-x86_64-disk.img --disk-format qcow2  --container-format bare --is-public True
+#wget http://download.cirros-cloud.net/0.3.3/cirros-0.3.3-x86_64-disk.img
+#glance image-create --name cirrus --file cirros-0.3.3-x86_64-disk.img --disk-format qcow2  --container-format bare --is-public True
+glance image-create --name cirrus --location http://download.cirros-cloud.net/0.3.3/cirros-0.3.3-x86_64-disk.img --disk-format qcow2  --container-format bare --is-public True
 
 # Compute services
 
