@@ -247,9 +247,9 @@ sleep 5
 
 source /root/shared/openstackrc-all-in-one
 apt-get install -y python-glanceclient
-#wget http://download.cirros-cloud.net/0.3.3/cirros-0.3.3-x86_64-disk.img
-#glance image-create --name cirrus --file cirros-0.3.3-x86_64-disk.img --disk-format qcow2  --container-format bare --is-public True
-glance image-create --name cirrus --location http://download.cirros-cloud.net/0.3.3/cirros-0.3.3-x86_64-disk.img --disk-format qcow2  --container-format bare --is-public True
+wget http://download.cirros-cloud.net/0.3.3/cirros-0.3.3-x86_64-disk.img
+glance image-create --name cirrus --file cirros-0.3.3-x86_64-disk.img --disk-format qcow2  --container-format bare --is-public True
+#glance image-create --name cirrus --location http://download.cirros-cloud.net/0.3.3/cirros-0.3.3-x86_64-disk.img --disk-format qcow2  --container-format bare --is-public True
 
 # Compute services
 
@@ -413,6 +413,15 @@ supports_hardware_acceleration=`egrep -c '(vmx|svm)' /proc/cpuinfo`
 if [ $supports_hardware_acceleration -eq 0 ]; then
   sed -i "s/kvm/qemu/g" /etc/nova/nova-compute.conf
 fi
+
+# 6.1 Enable libvirt tcp port for live-migration
+sed -i "s/#listen_tls = 0/listen_tls = 0/g" /etc/libvirt/libvirtd.conf
+sed -i "s/#listen_tcp = 1/listen_tcp = 1/g" /etc/libvirt/libvirtd.conf
+sed -i "s/^#listen_addr = .*/listen_addr = \"0.0.0.0\"/g" /etc/libvirt/libvirtd.conf
+sed -i "s/#auth_tcp = \"sasl\"/auth_tcp = \"none\"/g" /etc/libvirt/libvirtd.conf
+
+sed -i "s/libvirtd_opts=\"-d\"/libvirtd_opts=\"-l -d\"/g" /etc/default/libvirt-bin 
+service libvirt-bin restart
 
 # 7. Remove default database file
 rm /var/lib/nova/nova.sqlite
