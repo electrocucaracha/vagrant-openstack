@@ -1,9 +1,7 @@
 #!/bin/bash
 
-export my_ip=$(ip addr | awk '/eth1$/ { sub(/\/24/, "", $2); print $2}')
-if [ -z "${my_ip}" ]; then
-  export my_ip=$(ip addr | awk '/enp0s8$/ { sub(/\/24/, "", $2); print $2}')
-fi
+export my_nic=`ip route | awk '/192./ { print $3 }'`
+export my_ip=`ip addr | awk "/${my_nic}\$/ { sub(/\/24/, \"\","' $2); print $2}'`
 
 supporting_services_ip=192.168.50.10
 controller_services_ip=192.168.50.11

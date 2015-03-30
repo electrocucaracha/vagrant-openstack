@@ -25,10 +25,10 @@ echo "vncserver_proxyclient_address = ${my_ip}" >> /etc/nova/nova.conf
 echo "novncproxy_base_url = http://controller-services:6080/vnc_auto.html" >> /etc/nova/nova.conf
 echo "network_manager=nova.network.manager.FlatDHCPManager" >> /etc/nova/nova.conf 
 echo "firewall_driver=nova.virt.libvirt.firewall.IptablesFirewallDriver" >> /etc/nova/nova.conf 
-echo "public_interface=eth0" >> /etc/nova/nova.conf
-echo "vlan_interface=eth0" >> /etc/nova/nova.conf 
+echo "public_interface=${my_nic}" >> /etc/nova/nova.conf
+echo "vlan_interface=${my_nic}" >> /etc/nova/nova.conf 
 echo "flat_network_bridge=br100" >> /etc/nova/nova.conf
-echo "flat_interface=eth0" >> /etc/nova/nova.conf
+echo "flat_interface=${my_nic}" >> /etc/nova/nova.conf
 
 # 4. Configure Identity Service
 echo "auth_strategy = keystone" >> /etc/nova/nova.conf

@@ -313,7 +313,7 @@ service nova-conductor restart
 
 apt-get install -y  nova-network
 
-sed -i "s/\[DEFAULT\]/\[DEFAULT\]\nnetwork_manager=nova.network.manager.FlatDHCPManager\nfirewall_driver=nova.virt.libvirt.firewall.IptablesFirewallDriver\npublic_interface=eth0\nvlan_interface=eth0\nflat_network_bridge=br100\nflat_interface=eth0/g" /etc/nova/nova.conf
+sed -i "s/\[DEFAULT\]/\[DEFAULT\]\nnetwork_manager=nova.network.manager.FlatDHCPManager\nfirewall_driver=nova.virt.libvirt.firewall.IptablesFirewallDriver\npublic_interface=${my_nic}\nvlan_interface=${my_nic}\nflat_network_bridge=br100\nflat_interface=${my_nic}/g" /etc/nova/nova.conf
 
 service nova-network restart
 
