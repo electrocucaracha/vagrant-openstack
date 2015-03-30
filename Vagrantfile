@@ -5,6 +5,7 @@ conf = {
   'deployment-style'                => 'all-in-one',
 #  'deployment-style'                => 'group',
 #  'deployment-style'                => 'microservices',
+#  'deployment-style'                => 'containerize',
   'vagrant-box'                     => 'ubuntu/trusty64',
   'package-manager'                 => 'apt',
   'storage-controller'              => 'SATAController',
@@ -24,6 +25,7 @@ conf = {
   'compute-services-script'         => '/compute-services.sh',
   'block-storage-services-script'   => '/block-storage-services.sh',
   'all-in-one-script'               => '/all-in-one-services.sh',
+  'container-script'                => '/kolla.sh',
   'enable-rally'                    => 'true'
 }
 
@@ -200,6 +202,32 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       telemetry_controller.vm.network :private_network, ip: '192.168.50.23'
       telemetry_controller.vm.network :forwarded_port, guest: 8777, host: 8777
       telemetry_controller.vm.provision "shell", path: conf['package-manager'] + conf['telemetry-controller-script']
+    end
+
+  when 'containerize'
+
+    config.vm.define :container do |container|
+      container.vm.hostname = 'container'
+      container.vm.network :forwarded_port, guest: 5672 , host: 5672
+      container.vm.network :forwarded_port, guest: 3306, host: 3306
+      container.vm.network :forwarded_port, guest: 27017, host: 27017
+      container.vm.network :forwarded_port, guest: 5000, host: 5000
+      container.vm.network :forwarded_port, guest: 35357, host: 35357
+      container.vm.network :forwarded_port, guest: 9292, host: 9292
+      container.vm.network :forwarded_port, guest: 8774, host: 8774
+      container.vm.network :forwarded_port, guest: 8776, host: 8776
+      container.vm.network :forwarded_port, guest: 8777, host: 8777
+      container.vm.network :forwarded_port, guest: 80, host: 8080
+      container.vm.network :forwarded_port, guest: 6080, host: 6080
+      container.vm.synced_folder "docker/", "/home/vagrant/docker", create: true
+      container.vm.provision "shell", path: conf['package-manager'] + conf['container-script']
+      container.vm.provider "virtualbox" do |v|
+        v.customize ["modifyvm", :id, "--memory", 4 * 1024]
+      end
+#      container.vm.provision "docker" do |d|
+#        d.build_image "/home/vagrant/docker/message-broker", args: "-t electrocucaracha/message-broker"
+#        d.run "message-broker", image: "electrocucaracha/message-broker:latest", daemonize: true
+#      end
     end
 
   end
