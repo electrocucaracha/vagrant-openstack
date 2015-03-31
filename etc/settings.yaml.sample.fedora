@@ -1,0 +1,3 @@
+vagrant-box : chef/fedora-20
+package-manager : rdo
+storage-controller : IDE Controller
