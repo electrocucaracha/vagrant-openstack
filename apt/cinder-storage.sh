@@ -31,10 +31,10 @@ vgcreate cinder-volumes /dev/sdb1
 sed -i "s/filter = \[ \"a\/.*\/\"/filter = \[ \"a\/sdb\/\", \"r\/.\*\/\"/g" /etc/lvm/lvm.conf
 
 # 6. Install OpenStack Block Storage Service and dependencies
-echo "deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/juno main" >>  /etc/apt/sources.list.d/juno.list
-apt-get update
 apt-get install -y ubuntu-cloud-keyring
-apt-get update
+echo "deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/juno main" >>  /etc/apt/sources.list.d/juno.list
+apt-get update && apt-get dist-upgrade
+
 apt-get install -y cinder-volume python-mysqldb
 
 # 7. Configure message broker service

@@ -6,10 +6,10 @@ source /root/shared/hostnames.sh
 echo "source /root/shared/openstackrc" >> /root/.bashrc
 
 # 1. Install OpenStack Image Service and dependencies
-echo "deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/juno main" >>  /etc/apt/sources.list.d/juno.list
-apt-get update
 apt-get install -y ubuntu-cloud-keyring
-apt-get update
+echo "deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/juno main" >>  /etc/apt/sources.list.d/juno.list
+apt-get update && apt-get dist-upgrade
+
 apt-get install -y glance python-glanceclient
 
 # 2. Configure Database driver
