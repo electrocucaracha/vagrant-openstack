@@ -1,8 +1,5 @@
 #!/bin/bash
 
-export my_nic=`ip route | awk '/192./ { print $3 }'`
-export my_ip=`ip addr | awk "/${my_nic}\$/ { sub(/\/24/, \"\","' $2); print $2}'`
-
 supporting_services_ip=192.168.50.10
 controller_services_ip=192.168.50.11
 compute_services_ip=192.168.50.12

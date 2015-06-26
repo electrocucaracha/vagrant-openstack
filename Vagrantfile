@@ -15,6 +15,7 @@ conf = {
   'image-script'                    => '/glance.sh',
   'compute-controller-script'       => '/nova-controller.sh',
   'compute-script'                  => '/nova-compute.sh',
+  'network-controller-script'       => '/neutron-controller.sh',
   'dashboard-script'                => '/horizon.sh',
   'block-storage-controller-script' => '/cinder-controller.sh',
   'block-storage-script'            => '/cinder-storage.sh',
@@ -26,10 +27,11 @@ conf = {
   'block-storage-services-script'   => '/block-storage-services.sh',
   'all-in-one-script'               => '/all-in-one-services.sh',
   'container-script'                => '/kolla.sh',
-  'enable-rally'                    => 'true'
+  'enable-rally'                    => 'false'
 }
 
-file_to_disk='storage.vdi'
+block_file_to_disk='block-storage.vdi'
+object_file_to_disk='object-storage.vdi'
 
 vd_conf = ENV.fetch('VD_CONF', 'etc/settings.yaml')
 if File.exist?(vd_conf)
@@ -60,12 +62,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       all_in_one.vm.network :forwarded_port, guest: 8774, host: 8774
       all_in_one.vm.network :forwarded_port, guest: 8776, host: 8776
       all_in_one.vm.network :forwarded_port, guest: 8777, host: 8777
-      all_in_one.vm.network :forwarded_port, guest: 80, host: 8080
+      all_in_one.vm.network :forwarded_port, guest: 8080, host: 8080
+      all_in_one.vm.network :forwarded_port, guest: 80, host: 8880
       all_in_one.vm.network :forwarded_port, guest: 6080, host: 6080
       all_in_one.vm.provider "virtualbox" do |v|
         v.customize ["modifyvm", :id, "--memory", 4 * 1024]
-        v.customize ['createhd', '--filename', file_to_disk, '--size', 50 * 1024]
-        v.customize ['storageattach', :id, '--storagectl', conf['storage-controller'], '--port', 1, '--device', 0, '--type', 'hdd', '--medium', file_to_disk]
+        v.customize ['createhd', '--filename', block_file_to_disk, '--size', 50 * 1024]
+        v.customize ['createhd', '--filename', object_file_to_disk, '--size', 50 * 1024]
+        v.customize ['storageattach', :id, '--storagectl', conf['storage-controller'], '--port', 1, '--device', 0, '--type', 'hdd', '--medium', block_file_to_disk]
+        v.customize ['storageattach', :id, '--storagectl', conf['storage-controller'], '--port', 2, '--device', 0, '--type', 'hdd', '--medium', object_file_to_disk]
       end
       all_in_one.vm.provision "shell", path: conf['package-manager'] + conf['all-in-one-script']
     end
@@ -90,7 +95,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       controller_services.vm.network :forwarded_port, guest: 8774, host: 8774
       controller_services.vm.network :forwarded_port, guest: 8776, host: 8776
       controller_services.vm.network :forwarded_port, guest: 8777, host: 8777
-      controller_services.vm.network :forwarded_port, guest: 80, host: 8080
+      controller_services.vm.network :forwarded_port, guest: 8080, host: 8080
+      controller_services.vm.network :forwarded_port, guest: 80, host: 8880
       controller_services.vm.network :forwarded_port, guest: 6080, host: 6080
       controller_services.vm.provider "virtualbox" do |v|
         v.customize ["modifyvm", :id, "--memory", 2 * 1024]
@@ -112,8 +118,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       block_storage_services.vm.network :private_network, ip: '192.168.50.13'
       block_storage_services.vm.provision "shell", path: conf['package-manager'] + conf['block-storage-services-script']
       block_storage_services.vm.provider "virtualbox" do |v|
-        v.customize ['createhd', '--filename', file_to_disk, '--size', 50 * 1024]
-        v.customize ['storageattach', :id, '--storagectl', conf['storage-controller'], '--port', 1, '--device', 0, '--type', 'hdd', '--medium', file_to_disk]
+        v.customize ['createhd', '--filename', block_file_to_disk, '--size', 50 * 1024]
+        v.customize ['storageattach', :id, '--storagectl', conf['storage-controller'], '--port', 1, '--device', 0, '--type', 'hdd', '--medium', block_file_to_disk]
       end
     end
 
@@ -166,6 +172,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       compute.vm.provision "shell", path: conf['package-manager'] + conf['compute-script']
     end
 
+    config.vm.define :network_controller do |network_controller|
+      network_controller.vm.hostname = 'network-controller'
+      network_controller.vm.network :private_network, ip: '192.168.50.16'
+      network_controller.vm.network :forwarded_port, guest: 9696, host: 9696
+      network_controller.vm.provision "shell", path: conf['package-manager'] + conf['network-controller-script']
+    end
+
     config.vm.define :dashboard do |dashboard|
       dashboard.vm.hostname = 'dashboard'
       dashboard.vm.network :private_network, ip: '192.168.50.17'
@@ -185,8 +198,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       block_storage.vm.network :private_network, ip: '192.168.50.19'
       block_storage.vm.provision "shell", path: conf['package-manager'] + conf['block-storage-script']
       block_storage.vm.provider "virtualbox" do |v|
-        v.customize ['createhd', '--filename', file_to_disk, '--size', 50 * 1024]
-        v.customize ['storageattach', :id, '--storagectl', conf['storage-controller'], '--port', 1, '--device', 0, '--type', 'hdd', '--medium', file_to_disk]
+        v.customize ['createhd', '--filename', block_file_to_disk, '--size', 50 * 1024]
+        v.customize ['storageattach', :id, '--storagectl', conf['storage-controller'], '--port', 1, '--device', 0, '--type', 'hdd', '--medium', block_file_to_disk]
       end
     end
 
