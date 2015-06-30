@@ -35,7 +35,7 @@ crudini --set /etc/nova/nova.conf keystone_authtoken password ${NOVA_PASS}
 crudini --set /etc/nova/nova.conf DEFAULT my_ip ${my_ip}
 crudini --set /etc/nova/nova.conf DEFAULT vncserver_listen ${my_ip}
 crudini --set /etc/nova/nova.conf DEFAULT vncserver_proxyclient_address ${my_ip}
-crudini --set /etc/nova/nova.conf glance hsot ${HOSTNAME}
+crudini --set /etc/nova/nova.conf glance host ${HOSTNAME}
 crudini --set /etc/nova/nova.conf oslo_concurrency lock_path /var/lib/nova/tmp
 
 # 4. Generate tables
