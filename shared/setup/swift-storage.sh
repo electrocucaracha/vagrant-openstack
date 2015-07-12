@@ -10,7 +10,7 @@ wget -O /etc/swift/container-reconciler.conf https://git.openstack.org/cgit/open
 
 wget -O /etc/swift/object-expirer.conf https://git.openstack.org/cgit/openstack/swift/plain/etc/object-expirer.conf-sample?h=stable/kilo
 
-crudini --set /etc/swift/account-server.conf DEFAULT bind_ip ${my_ip}
+crudini --set /etc/swift/account-server.conf DEFAULT bind_ip 0.0.0.0
 crudini --set /etc/swift/account-server.conf DEFAULT bind_port 6002
 crudini --set /etc/swift/account-server.conf DEFAULT user swift
 crudini --set /etc/swift/account-server.conf DEFAULT swift_dir /etc/swift
@@ -19,7 +19,7 @@ crudini --set /etc/swift/account-server.conf DEFAULT devices /srv/node
 crudini --set /etc/swift/account-server.conf pipeline:main pipeline "healthcheck recon account-server"
 crudini --set /etc/swift/account-server.conf filter:recon recon_cache_path /var/cache/swift
 
-crudini --set /etc/swift/container-server.conf DEFAULT bind_ip ${my_ip}
+crudini --set /etc/swift/container-server.conf DEFAULT bind_ip 0.0.0.0
 crudini --set /etc/swift/container-server.conf DEFAULT bind_port 6001
 crudini --set /etc/swift/container-server.conf DEFAULT user swift
 crudini --set /etc/swift/container-server.conf DEFAULT swift_dir /etc/swift
@@ -28,7 +28,7 @@ crudini --set /etc/swift/container-server.conf DEFAULT devices /srv/node
 crudini --set /etc/swift/container-server.conf pipeline:main pipeline "healthcheck recon container-server"
 crudini --set /etc/swift/container-server.conf filter:recon recon_cache_path /var/cache/swift
 
-crudini --set /etc/swift/object-server.conf DEFAULT bind_ip ${my_ip}
+crudini --set /etc/swift/object-server.conf DEFAULT bind_ip 0.0.0.0
 crudini --set /etc/swift/object-server.conf DEFAULT bind_port 6000
 crudini --set /etc/swift/object-server.conf DEFAULT user swift
 crudini --set /etc/swift/object-server.conf DEFAULT swift_dir /etc/swift

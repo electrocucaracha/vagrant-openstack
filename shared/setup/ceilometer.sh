@@ -3,7 +3,7 @@
 # 1. Database creation
 mongo --host ${NOSQL_DATABASE_HOSTNAME} --eval "
 db = db.getSiblingDB(\"ceilometer\");
-db.createUser({user: \"ceilometer\",
+db.addUser({user: \"ceilometer\",
 pwd: \"${CEILOMETER_DBPASS}\",
 roles: [ \"readWrite\", \"dbAdmin\" ]})"
 
@@ -19,24 +19,30 @@ openstack endpoint create \
   --region regionOne \
   metering
 
+tail -n +2 /etc/ceilometer/ceilometer.conf > /etc/ceilometer/ceilometer.conf
+
 # 3. Configure service
 crudini --set /etc/ceilometer/ceilometer.conf database connection mongodb://ceilometer:${CEILOMETER_DBPASS}@${NOSQL_DATABASE_HOSTNAME}:27017/ceilometer
+
 crudini --set /etc/ceilometer/ceilometer.conf DEFAULT rpc_backend rabbit
 crudini --set /etc/ceilometer/ceilometer.conf oslo_messaging_rabbit rabbit_host ${MESSAGE_BROKER_HOSTNAME}
 crudini --set /etc/ceilometer/ceilometer.conf oslo_messaging_rabbit rabbit_userid openstack
 crudini --set /etc/ceilometer/ceilometer.conf oslo_messaging_rabbit rabbit_password ${RABBIT_PASS}
+
 crudini --set /etc/ceilometer/ceilometer.conf DEFAULT auth_strategy keystone
 crudini --set /etc/ceilometer/ceilometer.conf keystone_authtoken auth_uri http://${IDENTITY_HOSTNAME}:5000/v2.0
 crudini --set /etc/ceilometer/ceilometer.conf keystone_authtoken identity_uri http://${IDENTITY_HOSTNAME}:35357
 crudini --set /etc/ceilometer/ceilometer.conf keystone_authtoken admin_tenant_name service
-crudini --set /etc/ceilometer/ceilometer.conf keystone_authtoken admin_user ceilometer
-crudini --set /etc/ceilometer/ceilometer.conf keystone_authtoken admin_password ${CEILOMETER_PASS}
+crudini --set /etc/ceilometer/ceilometer.conf keystone_authtoken admin_user admin
+crudini --set /etc/ceilometer/ceilometer.conf keystone_authtoken admin_password ${ADMIN_PASS}
+
 crudini --set /etc/ceilometer/ceilometer.conf service_credentials os_auth_url http://${IDENTITY_HOSTNAME}:5000/v2.0
 crudini --set /etc/ceilometer/ceilometer.conf service_credentials os_username ceilometer
 crudini --set /etc/ceilometer/ceilometer.conf service_credentials os_tenant_name service
 crudini --set /etc/ceilometer/ceilometer.conf service_credentials os_password ${CEILOMETER_PASS}
 crudini --set /etc/ceilometer/ceilometer.conf service_credentials os_endpoint_type internalURL
-crudini --set /etc/ceilometer/ceilometer.conf service_credentials os_region_name RegionOne
+crudini --set /etc/ceilometer/ceilometer.conf service_credentials os_region_name regionOne
+
 crudini --set /etc/ceilometer/ceilometer.conf publisher telemetry_secret ${token}
 
 # Enable OSProfiler

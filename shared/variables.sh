@@ -5,7 +5,7 @@ export token=`openssl rand -hex 10`
 export my_nic=`ip route | awk '/192./ { print $3 }'`
 export my_ip=`ip addr | awk "/${my_nic}\$/ { sub(/\/24/, \"\","' $2); print $2}'`
 
-export ENABLE_PROFILER="True"
+export ENABLE_PROFILER="False"
 
 # List of hostnames
 export MESSAGE_BROKER_HOSTNAME=message-broker
@@ -16,6 +16,7 @@ export COMPUTE_CONTROLLER_HOSTNAME=compute-controller
 export BLOCK_STORAGE_CONTROLLER_HOSTNAME=block-storage-controller
 export OBJECT_STORAGE_CONTROLLER_HOSTNAME=object-storage-controller
 export NOSQL_DATABASE_HOSTNAME=nosql-datababase
+export ORCHESTRATION_HOSTNAME=orchestration
 export TELEMETRY_CONTROLLER_HOSTNAME=telemetry-controller
 
 # Service passwords
