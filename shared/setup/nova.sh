@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# 1. Database creation
-mysql -uroot -p${ROOT_DBPASS} -e "CREATE DATABASE if not exists nova;"
-mysql -uroot -p${ROOT_DBPASS} -e "GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'localhost' IDENTIFIED BY '${NOVA_DBPASS}';"
-mysql -uroot -p${ROOT_DBPASS} -e "GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'%' IDENTIFIED BY '${NOVA_DBPASS}';"
-
 # 2. User, service and endpoint creation
 source /root/admin-openrc.sh
 openstack user create nova --password=${NOVA_PASS} --email=nova@example.com

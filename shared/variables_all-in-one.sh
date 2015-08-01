@@ -16,8 +16,10 @@ export COMPUTE_CONTROLLER_HOSTNAME=all-in-one
 export BLOCK_STORAGE_CONTROLLER_HOSTNAME=all-in-one
 export OBJECT_STORAGE_CONTROLLER_HOSTNAME=all-in-one
 export NOSQL_DATABASE_HOSTNAME=all-in-one
-export ORCHESTRATION_HOSTNAME=all-in-one
 export TELEMETRY_CONTROLLER_HOSTNAME=all-in-one
+export ORCHESTRATION_HOSTNAME=all-in-one
+export DATABASE_CONTROLLER_HOSTNAME=all-in-one
+export DATA_HOSTNAME=all-in-one
 
 # Service passwords
 export ROOT_DBPASS=secure

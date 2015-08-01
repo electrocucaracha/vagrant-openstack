@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# 1. Database creation
-mysql -uroot -p${ROOT_DBPASS} -e "CREATE DATABASE if not exists keystone;"
-mysql -uroot -p${ROOT_DBPASS} -e "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'localhost' IDENTIFIED BY '${KEYSTONE_DBPASS}';"
-mysql -uroot -p${ROOT_DBPASS} -e "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' IDENTIFIED BY '${KEYSTONE_DBPASS}';"
-
 # 2. Configure Database driver
 crudini --set /etc/keystone/keystone.conf database connection mysql://keystone:${KEYSTONE_DBPASS}@${DATABASE_HOSTNAME}/keystone
 crudini --set /etc/keystone/keystone.conf revoke driver keystone.contrib.revoke.backends.sql.Revoke

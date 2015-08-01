@@ -33,7 +33,7 @@ crudini --set /etc/ceilometer/ceilometer.conf DEFAULT auth_strategy keystone
 crudini --set /etc/ceilometer/ceilometer.conf keystone_authtoken auth_uri http://${IDENTITY_HOSTNAME}:5000/v2.0
 crudini --set /etc/ceilometer/ceilometer.conf keystone_authtoken identity_uri http://${IDENTITY_HOSTNAME}:35357
 crudini --set /etc/ceilometer/ceilometer.conf keystone_authtoken admin_tenant_name service
-crudini --set /etc/ceilometer/ceilometer.conf keystone_authtoken admin_user admin
+crudini --set /etc/ceilometer/ceilometer.conf keystone_authtoken admin_user ceilometer
 crudini --set /etc/ceilometer/ceilometer.conf keystone_authtoken admin_password ${ADMIN_PASS}
 
 crudini --set /etc/ceilometer/ceilometer.conf service_credentials os_auth_url http://${IDENTITY_HOSTNAME}:5000/v2.0

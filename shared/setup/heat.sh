@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# 1. Database creation
-mysql -uroot -psecure -e "CREATE DATABASE if not exists heat;"
-mysql -uroot -psecure -e "GRANT ALL PRIVILEGES ON heat.* TO 'heat'@'localhost' IDENTIFIED BY '${HEAT_DBPASS}';"
-mysql -uroot -psecure -e "GRANT ALL PRIVILEGES ON heat.* TO 'heat'@'%' IDENTIFIED BY '${HEAT_DBPASS}';"
-
 # 2. User, service and endpoint creation
 source /root/admin-openrc.sh
 openstack user create heat --password=${HEAT_PASS} --email=heat@example.com

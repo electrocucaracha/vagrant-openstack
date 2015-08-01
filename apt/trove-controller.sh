@@ -17,22 +17,11 @@ then
   apt-get install -y mysql-client
 fi
 
-# Image Service
+# Database services
+apt-get install -y python-trove python-troveclient python-glanceclient trove-common trove-api trove-taskmanager trove-conductor
 
-# 1. Install OpenStack Image Service and dependencies
-apt-get install -y glance python-glanceclient
+./trove.sh
 
-./glance.sh
-rm -f /var/lib/glance/glance.sqlite
-
-# Image - Telemetry services
-
-./configure_ceilometer_image.sh
-
-# 2. Restart services
-service glance-registry restart
-service glance-api restart
-
-sleep 5
-
-./upload_cirros_image.sh
+service trove-api restart
+service trove-conductor restart
+service trove-taskmanager restart

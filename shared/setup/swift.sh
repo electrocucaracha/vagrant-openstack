@@ -17,6 +17,7 @@ mkdir -p /etc/swift
 wget -O /etc/swift/proxy-server.conf https://git.openstack.org/cgit/openstack/swift/plain/etc/proxy-server.conf-sample?h=stable/kilo
 
 # 3. Configure api service
+crudini --set /etc/swift/proxy-server.conf DEFAULT bind_ip ${my_ip}
 crudini --set /etc/swift/proxy-server.conf DEFAULT bind_port 8080
 crudini --set /etc/swift/proxy-server.conf DEFAULT user swift
 crudini --set /etc/swift/proxy-server.conf DEFAULT swift_dir /etc/swift

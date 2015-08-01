@@ -1,11 +1,16 @@
 #!/bin/bash
 
-# 0. Post-installation
-/root/shared/proxy.sh
+cd /root/shared
+source configure.sh
+cd setup
+
+apt-get update -y && apt-get dist-upgrade -y
+
+apt-get install -y crudini
+
+# Message broker
 
 # 1. Install database server
-apt-get update
 apt-get install -y rabbitmq-server
 
-# 2. Change default guest user password
-rabbitmqctl change_password guest secure
+./create_rabbit_user.sh

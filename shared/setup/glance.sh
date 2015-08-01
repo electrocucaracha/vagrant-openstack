@@ -1,11 +1,6 @@
 #!/bin/bash
 
-# 1. Database creation
-mysql -uroot -p${ROOT_DBPASS} -e "CREATE DATABASE if not exists glance;"
-mysql -uroot -p${ROOT_DBPASS} -e "GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'localhost' IDENTIFIED BY '${GLANCE_DBPASS}';"
-mysql -uroot -p${ROOT_DBPASS} -e "GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'%' IDENTIFIED BY '${GLANCE_DBPASS}';"
-
-# 2. User, service and endpoint creation
+# 1. User, service and endpoint creation
 source /root/admin-openrc.sh
 openstack user create glance --password=${GLANCE_PASS} --email=glance@example.com
 openstack role add admin --user=glance --project=service

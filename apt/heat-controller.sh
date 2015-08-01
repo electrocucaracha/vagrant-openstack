@@ -17,22 +17,14 @@ then
   apt-get install -y mysql-client
 fi
 
-# Image Service
+# Orchestration service
 
-# 1. Install OpenStack Image Service and dependencies
-apt-get install -y glance python-glanceclient
+apt-get install -y  heat-api heat-api-cfn heat-engine python-heatclient
 
-./glance.sh
-rm -f /var/lib/glance/glance.sqlite
+./heat.sh
 
-# Image - Telemetry services
+service heat-api restart
+service heat-api-cfn restart
+service heat-engine restart
 
-./configure_ceilometer_image.sh
-
-# 2. Restart services
-service glance-registry restart
-service glance-api restart
-
-sleep 5
-
-./upload_cirros_image.sh
+rm -f /var/lib/heat/heat.sqlite

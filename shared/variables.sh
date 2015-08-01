@@ -18,6 +18,8 @@ export OBJECT_STORAGE_CONTROLLER_HOSTNAME=object-storage-controller
 export NOSQL_DATABASE_HOSTNAME=nosql-datababase
 export ORCHESTRATION_HOSTNAME=orchestration
 export TELEMETRY_CONTROLLER_HOSTNAME=telemetry-controller
+export DATABASE_CONTROLLER_HOSTNAME=database-controller
+export DATA_HOSTNAME=data
 
 # Service passwords
 export ROOT_DBPASS=secure

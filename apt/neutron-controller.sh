@@ -12,13 +12,10 @@ apt-get update -y && apt-get dist-upgrade -y
 
 apt-get install -y crudini
 
-# Dashboard
+# Controller - Networking services
 
-# 1. Install OpenStack Dashboard and dependencies
-apt-get install -y openstack-dashboard
+./setup_legacy_network_controller.sh
 
-# 2. Configure settings
-sed -i "s/OPENSTACK_HOST = \"127.0.0.1\"/OPENSTACK_HOST = \"${IDENTITY_HOSTNAME}\"/g" /etc/openstack-dashboard/local_settings.py
-
-# 3. Restart services
-service apache2 restart
+service nova-api restart
+service nova-scheduler restart
+service nova-conductor restart
