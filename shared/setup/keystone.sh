@@ -6,8 +6,10 @@ crudini --set /etc/keystone/keystone.conf revoke driver keystone.contrib.revoke.
 
 # 2.1 Configure Memcached
 crudini --set /etc/keystone/keystone.conf memcache servers localhost:11211
-crudini --set /etc/keystone/keystone.conf memcache provider keystone.token.providers.uuid.Provider
-crudini --set /etc/keystone/keystone.conf memcache driver keystone.token.persistence.backends.memcache.Token
+crudini --set /etc/keystone/keystone.conf token provider keystone.token.providers.uuid.Provider
+crudini --set /etc/keystone/keystone.conf token driver keystone.token.persistence.backends.memcache.Token
+
+crudini --set /etc/keystone/keystone.conf revoke driver keystone.contrib.revoke.backends.sql.Revoke
 
 # 3. Generate tables
 su -s /bin/sh -c "keystone-manage db_sync" keystone

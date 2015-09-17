@@ -2,43 +2,32 @@
 
 # 2. User, service and endpoint creation
 source /root/admin-openrc.sh
-openstack user create cinder --password=${CINDER_PASS} --email=cinder@example.com
-openstack role add admin --user=cinder --project=service
-openstack service create --name=cinder --description="OpenStack Block Storage Service" volume
-openstack service create --name=cinderv2 --description "OpenStack Block Storage Service" volumev2
+openstack user create sahara --password=${SAHARA_PASS} --email=sahara@example.com
+openstack role add admin --user=sahara --project=service
+openstack service create --name=sahara --description="OpenStack Data Processing Service" data-processing
 openstack endpoint create \
-  --publicurl http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v2/%\(tenant_id\)s \
-  --internalurl http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v2/%\(tenant_id\)s \
-  --adminurl http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v2/%\(tenant_id\)s \
+  --publicurl http://${DATA_HOSTNAME}:8386/v1.1/%\(tenant_id\)s \
+  --internalurl http://${DATA_HOSTNAME}:8386/v1.1/%\(tenant_id\)s \
+  --adminurl http://${DATA_HOSTNAME}:8386/v1.1/%\(tenant_id\)s \
   --region regionOne \
-  volume
-openstack endpoint create \
-  --publicurl http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v2/%\(tenant_id\)s \
-  --internalurl http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v2/%\(tenant_id\)s \
-  --adminurl http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v2/%\(tenant_id\)s \
-  --region regionOne \
-  volumev2
+  data-processing
 
 # 3. Configure api service
-crudini --set /etc/cinder/cinder.conf database connection mysql://cinder:${CINDER_DBPASS}@${DATABASE_HOSTNAME}/cinder
-crudini --set /etc/cinder/cinder.conf DEFAULT rpc_backend rabbit
-crudini --set /etc/cinder/cinder.conf oslo_messaging_rabbit rabbit_host ${MESSAGE_BROKER_HOSTNAME}
-crudini --set /etc/cinder/cinder.conf oslo_messaging_rabbit rabbit_userid openstack
-crudini --set /etc/cinder/cinder.conf oslo_messaging_rabbit rabbit_password ${RABBIT_PASS}
+crudini --set /etc/sahara/sahara.conf database connection mysql://sahara:${SAHARA_DBPASS}@${DATABASE_HOSTNAME}/sahara
+crudini --set /etc/sahara/sahara.conf DEFAULT rpc_backend rabbit
+crudini --set /etc/sahara/sahara.conf oslo_messaging_rabbit rabbit_host ${MESSAGE_BROKER_HOSTNAME}
+crudini --set /etc/sahara/sahara.conf oslo_messaging_rabbit rabbit_userid openstack
+crudini --set /etc/sahara/sahara.conf oslo_messaging_rabbit rabbit_password ${RABBIT_PASS}
 
-crudini --set /etc/cinder/cinder.conf DEFAULT auth_strategy keystone
-crudini --set /etc/cinder/cinder.conf keystone_authtoken auth_uri http://${IDENTITY_HOSTNAME}:5000
-crudini --set /etc/cinder/cinder.conf keystone_authtoken auth_url http://${IDENTITY_HOSTNAME}:35357
-crudini --set /etc/cinder/cinder.conf keystone_authtoken auth_plugin password
-crudini --set /etc/cinder/cinder.conf keystone_authtoken project_domain_id default
-crudini --set /etc/cinder/cinder.conf keystone_authtoken user_domain_id default
-crudini --set /etc/cinder/cinder.conf keystone_authtoken project_name service
-crudini --set /etc/cinder/cinder.conf keystone_authtoken username cinder
-crudini --set /etc/cinder/cinder.conf keystone_authtoken password ${CINDER_PASS}
-
-crudini --set /etc/cinder/cinder.conf DEFAULT my_ip ${my_ip}
-
-crudini --set /etc/cinder/cinder.conf oslo_concurrency lock_path /var/lock/cinder
+crudini --set /etc/sahara/sahara.conf DEFAULT auth_strategy keystone
+crudini --set /etc/sahara/sahara.conf keystone_authtoken auth_uri http://${IDENTITY_HOSTNAME}:5000
+crudini --set /etc/sahara/sahara.conf keystone_authtoken auth_url http://${IDENTITY_HOSTNAME}:35357
+crudini --set /etc/sahara/sahara.conf keystone_authtoken auth_plugin password
+crudini --set /etc/sahara/sahara.conf keystone_authtoken project_domain_id default
+crudini --set /etc/sahara/sahara.conf keystone_authtoken user_domain_id default
+crudini --set /etc/sahara/sahara.conf keystone_authtoken project_name service
+crudini --set /etc/sahara/sahara.conf keystone_authtoken username sahara
+crudini --set /etc/sahara/sahara.conf keystone_authtoken password ${SAHARA_PASS}
 
 # 4. Generate tables
-su -s /bin/sh -c "cinder-manage db sync" cinder
+su -s /bin/sh -c "sahara-db-manage upgrade head" sahara

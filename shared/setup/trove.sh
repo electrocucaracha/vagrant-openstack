@@ -58,6 +58,7 @@ crudini --set /etc/trove/trove-taskmanager.conf DEFAULT nova_proxy_admin_pass ${
 crudini --set /etc/trove/trove-taskmanager.conf DEFAULT nova_proxy_admin_tenant_name service
 crudini --set /etc/trove/trove.conf DEFAULT taskmanager_manager trove.taskmanager.manager.Manager
 
+chown -R trove:trove /var/log/trove/
 trove-manage db_sync
 su -s /bin/sh -c "trove-manage datastore_update mysql ''" trove
 

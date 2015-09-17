@@ -1,15 +1,14 @@
 #!/bin/bash
 
-# 0. Post-installation
-/root/shared/proxy.sh
-source /root/shared/hostnames.sh
-echo "source /root/shared/openstackrc" >> /root/.bashrc
+cd /root/shared
+source configure.sh
+cd setup
 
 # 1. Install OpenStack Compute Service and dependencies
 yum install -y yum-plugin-priorities
-yum install -y http://repos.fedorapeople.org/repos/openstack/openstack-juno/rdo-release-juno-1.noarch.rpm
-yum install -y http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
-yum install -y openstack-utils
+yum install -y http://rdo.fedorapeople.org/openstack-kilo/rdo-release-kilo.rpm
+yum install -y http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
+yum install -y openstack-selinux deltarpm
 yum upgrade -y
 yum clean all
 yum update -y

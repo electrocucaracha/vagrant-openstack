@@ -6,56 +6,57 @@ source /root/shared/hostnames_group.sh
 echo "source /root/shared/openstackrc-group" >> /root/.bashrc
 source /root/.bashrc
 
-# 1. Install OpenStack Compute Service and dependencies
-yum install -y yum-plugin-priorities
-yum install -y http://repos.fedorapeople.org/repos/openstack/openstack-juno/rdo-release-juno-1.noarch.rpm
-yum install -y http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
-yum install -y openstack-utils
-yum upgrade -y
-yum clean all
-yum update -y
-yum install -y openstack-nova-compute openstack-nova-network openstack-nova-api sysfsutils
+# 1. Install compute packages
+apt-get install -y ubuntu-cloud-keyring
+echo "deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/juno main" >>  /etc/apt/sources.list.d/juno.list
+apt-get update && apt-get dist-upgrade
+apt-get install -y nova-compute sysfsutils nova-network nova-api-metadata
 
 # 2. Configure message broker service
-crudini --set /etc/nova/nova.conf DEFAULT rpc_backend rabbit
-crudini --set /etc/nova/nova.conf DEFAULT rabbit_host supporting-services
-crudini --set /etc/nova/nova.conf DEFAULT rabbit_password secure
+echo "rpc_backend = rabbit" >> /etc/nova/nova.conf
+echo "rabbit_host = supporting-services" >> /etc/nova/nova.conf
+echo "rabbit_password = secure" >> /etc/nova/nova.conf
 
 # 3. Configure VNC Server
-crudini --set /etc/nova/nova.conf DEFAULT vnc_enabled True
-crudini --set /etc/nova/nova.conf DEFAULT vncserver_listen 0.0.0.0
-crudini --set /etc/nova/nova.conf DEFAULT vncserver_proxyclient_address ${my_ip}
-crudini --set /etc/nova/nova.conf DEFAULT novncproxy_base_url http://controller-services:6080/vnc_auto.html
-
-crudini --set /etc/nova/nova.conf DEFAULT my_ip ${my_ip}
+echo "my_ip = ${my_ip}" >> /etc/nova/nova.conf
+echo "vnc_enabled = True" >> /etc/nova/nova.conf
+echo "vncserver_listen = 0.0.0.0" >> /etc/nova/nova.conf
+echo "vncserver_proxyclient_address = ${my_ip}" >> /etc/nova/nova.conf
+echo "novncproxy_base_url = http://controller-services:6080/vnc_auto.html" >> /etc/nova/nova.conf
+echo "network_manager=nova.network.manager.FlatDHCPManager" >> /etc/nova/nova.conf 
+echo "firewall_driver=nova.virt.libvirt.firewall.IptablesFirewallDriver" >> /etc/nova/nova.conf 
+echo "public_interface=${my_nic}" >> /etc/nova/nova.conf
+echo "vlan_interface=${my_nic}" >> /etc/nova/nova.conf 
+echo "flat_network_bridge=br100" >> /etc/nova/nova.conf
+echo "flat_interface=${my_nic}" >> /etc/nova/nova.conf
 
 # 4. Configure Identity Service
-crudini --set /etc/nova/nova.conf DEFAULT auth_strategy keystone
-crudini --set /etc/nova/nova.conf keystone_authtoken auth_uri http://controller-services:5000/v2.0
-crudini --set /etc/nova/nova.conf keystone_authtoken identity_uri http://controller-services:35357
-crudini --set /etc/nova/nova.conf keystone_authtoken admin_tenant_name service
-crudini --set /etc/nova/nova.conf keystone_authtoken admin_user nova
-crudini --set /etc/nova/nova.conf keystone_authtoken admin_password secure
+echo "auth_strategy = keystone" >> /etc/nova/nova.conf
+echo "" >> /etc/nova/nova.conf
+echo "[keystone_authtoken]" >> /etc/nova/nova.conf
+echo "auth_uri = http://controller-services:5000/v2.0" >> /etc/nova/nova.conf
+echo "identity_uri = http://controller-services:35357" >> /etc/nova/nova.conf
+echo "admin_tenant_name = service" >> /etc/nova/nova.conf
+echo "admin_user = nova" >> /etc/nova/nova.conf
+echo "admin_password = secure" >> /etc/nova/nova.conf
 
 # 5. Configure Image Service
-crudini --set /etc/nova/nova.conf glance host controller-services
-
-# 6. Configure Network Service
-crudini --set /etc/nova/nova.conf DEFAULT network_manager nova.network.manager.FlatDHCPManager
-crudini --set /etc/nova/nova.conf DEFAULT firewall_driver nova.virt.libvirt.firewall.IptablesFirewallDriver
-crudini --set /etc/nova/nova.conf DEFAULT public_interface eth0
-crudini --set /etc/nova/nova.conf DEFAULT vlan_interface eth0
-crudini --set /etc/nova/nova.conf DEFAULT flat_network_bridge br100
-crudini --set /etc/nova/nova.conf DEFAULT flat_interface eth0
+echo "" >> /etc/nova/nova.conf
+echo "[glance]" >> /etc/nova/nova.conf
+echo "host = controller-services" >> /etc/nova/nova.conf
 
 # 6. Use KVM or QEMU
 supports_hardware_acceleration=`egrep -c '(vmx|svm)' /proc/cpuinfo`
 if [ $supports_hardware_acceleration -eq 0 ]; then
-  crudini --set /etc/nova/nova.conf libvirt virt_type qemu
+  sed -i "s/kvm/qemu/g" /etc/nova/nova-compute.conf
 fi
 
-# 7. Restart services
-systemctl enable libvirtd.service openstack-nova-compute.service openstack-nova-network.service openstack-nova-metadata-api.service
-systemctl start libvirtd.service openstack-nova-compute.service openstack-nova-network.service openstack-nova-metadata-api.service
+# 7. Remove default database file
+rm /var/lib/nova/nova.sqlite
+
+# 8. Restart service
+service nova-compute restart
+service nova-network restart
+service nova-api-metadata restart
 
 #nova network-create demo-net --bridge br100 --fixed-range-v4 203.0.113.24/29

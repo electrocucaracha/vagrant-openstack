@@ -1,63 +1,47 @@
 #!/bin/bash
 
-# 0. Post-installation
-/root/shared/proxy.sh
-source /root/shared/hostnames.sh
+cd /root/shared
+source configure.sh
+cd setup
 
 # 1. Install database server
 yum -y upgrade
 yum install -y mariadb-server
 
 # 2. Configure remote access
-cat <<EOL > /etc/my.cnf
+cat <<EOL > /etc/my.cnf.d/mariadb_openstack.cnf 
 [mysqld]
-bind-address = ${my_ip}
+bind-address = 0.0.0.0
 default-storage-engine = innodb
 innodb_file_per_table
 collation-server = utf8_general_ci
 init-connect = 'SET NAMES utf8'
 character-set-server = utf8
-datadir=/var/lib/mysql
-socket=/var/lib/mysql/mysql.sock
-symbolic-links=0
-
-[mysqld_safe]
-log-error=/var/log/mariadb/mariadb.log
-pid-file=/var/run/mariadb/mariadb.pid
-
-!includedir /etc/my.cnf.d
 EOL
 systemctl enable mariadb.service
 systemctl start mariadb.service
 
-echo -e "\nY\nsecure\nsecure\nY\n" | mysql_secure_installation
+sleep 5
 
-# 3 Create OpenStack databases
+echo -e "\nY\n${ROOT_DBPASS}\n${ROOT_DBPASS}\nY\n" | mysql_secure_installation
 
-# 3.1 Create Keystone database
-echo "CREATE DATABASE keystone;" >> create_keystone.sql
-echo "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'localhost' IDENTIFIED BY 'secure';" >> create_keystone.sql
-echo "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' IDENTIFIED BY 'secure';" >> create_keystone.sql
+mysql -uroot -p${ROOT_DBPASS} -e "CREATE DATABASE if not exists keystone;"
+mysql -uroot -p${ROOT_DBPASS} -e "CREATE DATABASE if not exists glance;"
+mysql -uroot -p${ROOT_DBPASS} -e "CREATE DATABASE if not exists nova;"
+mysql -uroot -p${ROOT_DBPASS} -e "CREATE DATABASE if not exists cinder;"
+mysql -uroot -p${ROOT_DBPASS} -e "CREATE DATABASE if not exists heat;"
+mysql -uroot -p${ROOT_DBPASS} -e "CREATE DATABASE if not exists trove;"
+mysql -uroot -p${ROOT_DBPASS} -e "CREATE DATABASE if not exists sahara;"
 
-mysql -uroot -psecure < create_keystone.sql
+if [ "$CONFIGURATION" !=  "_all-in-one" ]
+then
+  mysql -uroot -p${ROOT_DBPASS} -e "GRANT ALL PRIVILEGES ON *.* TO 'root'@'192.168.50.%' IDENTIFIED BY '${ROOT_DBPASS}';FLUSH PRIVILEGES;"
+fi
 
-# 3.2 Create Glance database
-echo "CREATE DATABASE glance;" >> create_glance.sql
-echo "GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'localhost' IDENTIFIED BY 'secure';" >> create_glance.sql
-echo "GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'%' IDENTIFIED BY 'secure';" >> create_glance.sql
-
-mysql -uroot -psecure < create_glance.sql
-
-# 3.3 Create Nova database
-echo "CREATE DATABASE nova;" >> create_nova.sql
-echo "GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'localhost' IDENTIFIED BY 'secure';" >> create_nova.sql
-echo "GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'%' IDENTIFIED BY 'secure';" >> create_nova.sql
-
-mysql -uroot -psecure < create_nova.sql
-
-# 3.4 Create Cinder database
-echo "CREATE DATABASE cinder;" >> create_cinder.sql
-echo "GRANT ALL PRIVILEGES ON cinder.* TO 'cinder'@'localhost' IDENTIFIED BY 'secure';" >> create_cinder.sql
-echo "GRANT ALL PRIVILEGES ON cinder.* TO 'cinder'@'%' IDENTIFIED BY 'secure';" >> create_cinder.sql
-
-mysql -uroot -psecure < create_cinder.sql
+mysql -uroot -p${ROOT_DBPASS} -e "GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'${IDENTITY_HOSTNAME}' IDENTIFIED BY '${KEYSTONE_DBPASS}';"
+mysql -uroot -p${ROOT_DBPASS} -e "GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'${IMAGE_HOSTNAME}' IDENTIFIED BY '${GLANCE_DBPASS}';"
+mysql -uroot -p${ROOT_DBPASS} -e "GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'${COMPUTE_CONTROLLER_HOSTNAME}' IDENTIFIED BY '${NOVA_DBPASS}';"
+mysql -uroot -p${ROOT_DBPASS} -e "GRANT ALL PRIVILEGES ON cinder.* TO 'cinder'@'${BLOCK_STORAGE_CONTROLLER_HOSTNAME}' IDENTIFIED BY '${CINDER_DBPASS}';"
+mysql -uroot -p${ROOT_DBPASS} -e "GRANT ALL PRIVILEGES ON heat.* TO 'heat'@'${ORCHESTRATION_HOSTNAME}' IDENTIFIED BY '${HEAT_DBPASS}';"
+mysql -uroot -p${ROOT_DBPASS} -e "GRANT ALL PRIVILEGES ON trove.* TO 'trove'@'${DATABASE_CONTROLLER_HOSTNAME}' IDENTIFIED BY '${TROVE_DBPASS}';"
+mysql -uroot -p${ROOT_DBPASS} -e "GRANT ALL PRIVILEGES ON sahara.* TO 'sahara'@'${DATA_HOSTNAME}' IDENTIFIED BY '${SAHARA_DBPASS}';"

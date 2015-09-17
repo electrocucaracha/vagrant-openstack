@@ -4,7 +4,8 @@
 source /root/admin-openrc.sh
 openstack user create glance --password=${GLANCE_PASS} --email=glance@example.com
 openstack role add admin --user=glance --project=service
-openstack service create image --name=glance --description="OpenStack Image Service"
+openstack service create --name glance \
+  --description "OpenStack Image service" image
 openstack endpoint create \
   --publicurl=http://${IMAGE_HOSTNAME}:9292 \
   --internalurl=http://${IMAGE_HOSTNAME}:9292 \
@@ -14,6 +15,11 @@ openstack endpoint create \
 
 # 2. Configure api service
 crudini --set /etc/glance/glance-api.conf database connection mysql://glance:${GLANCE_DBPASS}@${DATABASE_HOSTNAME}/glance
+
+crudini --set /etc/glance/glance-api.conf keystone_authtoken identity_uri http://${IDENTITY_HOSTNAME}:35357
+crudini --set /etc/glance/glance-api.conf keystone_authtoken admin_tenant_name service
+crudini --set /etc/glance/glance-api.conf keystone_authtoken admin_user glance
+crudini --set /etc/glance/glance-api.conf keystone_authtoken admin_password ${GLANCE_PASS}
 
 crudini --set /etc/glance/glance-api.conf keystone_authtoken auth_uri http://${IDENTITY_HOSTNAME}:5000
 crudini --set /etc/glance/glance-api.conf keystone_authtoken auth_url http://${IDENTITY_HOSTNAME}:35357
@@ -32,6 +38,11 @@ crudini --set /etc/glance/glance-api.conf DEFAULT notification_driver noop
 
 # 3. Configure registry service
 crudini --set /etc/glance/glance-registry.conf database connection  mysql://glance:${GLANCE_DBPASS}@${DATABASE_HOSTNAME}/glance
+
+crudini --set /etc/glance/glance-registry.conf keystone_authtoken identity_uri http://${IDENTITY_HOSTNAME}:35357
+crudini --set /etc/glance/glance-registry.conf keystone_authtoken admin_tenant_name service
+crudini --set /etc/glance/glance-registry.conf keystone_authtoken admin_user glance
+crudini --set /etc/glance/glance-registry.conf keystone_authtoken admin_password ${GLANCE_PASS}
 
 crudini --set /etc/glance/glance-registry.conf keystone_authtoken auth_uri http://${IDENTITY_HOSTNAME}:5000
 crudini --set /etc/glance/glance-registry.conf keystone_authtoken auth_url http://${IDENTITY_HOSTNAME}:35357

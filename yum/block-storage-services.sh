@@ -6,12 +6,8 @@ source /root/shared/hostnames_group.sh
 echo "source /root/shared/openstackrc-group" >> /root/.bashrc
 
 # 1. Install Logical Volume Manager
-yum update
-yum install -y lvm2
-
-# 1.1 Enable the LVM services
-systemctl enable lvm2-lvmetad.service
-systemctl start lvm2-lvmetad.service
+apt-get update
+apt-get install -y lvm2
 
 # 2. Create a partition based on other partition
 cat <<EOL > sdb.layout
@@ -34,37 +30,41 @@ vgcreate cinder-volumes /dev/sdb1
 # 5. Add a filter that accepts the /dev/sdb device and rejects all other devices
 sed -i "s/filter = \[ \"a\/.*\/\"/filter = \[ \"a\/sdb\/\", \"r\/.\*\/\"/g" /etc/lvm/lvm.conf
 
-# 1. Install OpenStack Compute Service and dependencies
-yum install -y yum-plugin-priorities
-yum install -y http://repos.fedorapeople.org/repos/openstack/openstack-juno/rdo-release-juno-1.noarch.rpm
-yum install -y http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
-yum install -y openstack-utils
-yum upgrade -y
-yum clean all
-yum update -y
-yum install -y openstack-cinder targetcli python-oslo-db MySQL-python
+# 6. Install OpenStack Block Storage Service and dependencies
+apt-get install -y ubuntu-cloud-keyring
+echo "deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/juno main" >>  /etc/apt/sources.list.d/juno.list
+apt-get update && apt-get dist-upgrade
+apt-get install -y cinder-volume python-mysqldb
 
-# 2. Configure Database driver
-crudini --set /etc/cinder/cinder.conf database connection  mysql://cinder:secure@supporting-services/cinder
+# 7. Configure message broker service
+echo "rpc_backend = rabbit" >> /etc/cinder/cinder.conf
+echo "rabbit_host = supporting-services" >> /etc/cinder/cinder.conf
+echo "rabbit_password = secure" >> /etc/cinder/cinder.conf
 
-# 3. Configure message broker service
-crudini --set /etc/cinder/cinder.conf DEFAULT rpc_backend rabbit
-crudini --set /etc/cinder/cinder.conf DEFAULT rabbit_host supporting-services
-crudini --set /etc/cinder/cinder.conf DEFAULT rabbit_password secure
+echo "my_ip = ${my_ip}" >> /etc/cinder/cinder.conf
 
-# 4. Configure Identity Service
-crudini --set /etc/cinder/cinder.conf DEFAULT auth_strategy keystone
-crudini --set /etc/cinder/cinder.conf keystone_authtoken auth_uri http://controller-services:5000/v2.0
-crudini --set /etc/cinder/cinder.conf keystone_authtoken identity_uri http://controller-services:35357
-crudini --set /etc/cinder/cinder.conf keystone_authtoken admin_tenant_name service
-crudini --set /etc/cinder/cinder.conf keystone_authtoken admin_user cinder
-crudini --set /etc/cinder/cinder.conf keystone_authtoken admin_password secure
+# 8. Configure Identity Service
+#echo "auth_strategy = keystone" >> /etc/cinder/cinder.conf
+echo "" >> /etc/cinder/cinder.conf
+echo "[keystone_authtoken]" >> /etc/cinder/cinder.conf
+echo "identity_uri = http://controller-services:35357" >> /etc/cinder/cinder.conf
+echo "admin_tenant_name = service" >> /etc/cinder/cinder.conf
+echo "admin_user = cinder" >> /etc/cinder/cinder.conf
+echo "admin_password = secure" >> /etc/cinder/cinder.conf
 
-crudini --set /etc/cinder/cinder.conf DEFAULT my_ip ${my_ip}
-crudini --set /etc/cinder/cinder.conf DEFAULT glance_host controller-services
-#crudini --set /etc/cinder/cinder.conf DEFAULT iscsi_helper lioadm
-crudini --set /etc/cinder/cinder.conf DEFAULT iscsi_helper tgtadm
+# 9. Configure Database driver
+echo "" >> /etc/cinder/cinder.conf
+echo "[database]" >> /etc/cinder/cinder.conf
+echo "connection = mysql://cinder:secure@supporting-services/cinder" >> /etc/cinder/cinder.conf
 
-# 5. Start services
-systemctl enable openstack-cinder-volume.service target.service
-systemctl start openstack-cinder-volume.service target.service
+# 10. Configure Image Service
+echo "" >> /etc/cinder/cinder.conf
+echo "[glance]" >> /etc/cinder/cinder.conf
+echo "host = controller-services" >> /etc/cinder/cinder.conf
+
+# 11. Restart services
+service tgt restart
+service cinder-volume restart
+
+# 12. Remove unnecessary files
+rm -f /var/lib/cinder/cinder.sqlite

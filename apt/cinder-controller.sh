@@ -23,7 +23,6 @@ fi
 apt-get install -y cinder-api cinder-scheduler python-cinderclient
 
 ./cinder.sh
-su -s /bin/sh -c "cinder-manage db sync" cinder
 
 # Block Storage - Telemetry services
 

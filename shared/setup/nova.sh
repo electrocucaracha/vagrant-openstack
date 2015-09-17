@@ -4,7 +4,8 @@
 source /root/admin-openrc.sh
 openstack user create nova --password=${NOVA_PASS} --email=nova@example.com
 openstack role add admin --user=nova --project=service
-openstack service create compute --name=nova --description="OpenStack Compute Service"
+openstack service create --name nova \
+  --description "OpenStack Compute" compute
 openstack endpoint create \
   --publicurl=http://${COMPUTE_CONTROLLER_HOSTNAME}:8774/v2/%\(tenant_id\)s \
   --internalurl=http://${COMPUTE_CONTROLLER_HOSTNAME}:8774/v2/%\(tenant_id\)s \
