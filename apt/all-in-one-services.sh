@@ -13,11 +13,11 @@ cd /root/scripts
 ./nova-controller.sh
 ./horizon.sh
 ./cinder-controller.sh
-./swift-controller.sh
 ./heat-controller.sh
 ./ceilometer-controller.sh
+./swift-controller.sh
 #./trove-controller.sh
-./sahara-controller.sh
+#./sahara-controller.sh
 
 ./nova-compute.sh
 
