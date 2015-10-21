@@ -64,21 +64,29 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       all_in_one.vm.network :forwarded_port, guest: 8774, host: 8774
       all_in_one.vm.network :forwarded_port, guest: 8776, host: 8776
       all_in_one.vm.network :forwarded_port, guest: 8777, host: 8777
+      all_in_one.vm.network :forwarded_port, guest: 9696, host: 9696
       all_in_one.vm.network :forwarded_port, guest: 8080, host: 8080
       all_in_one.vm.network :forwarded_port, guest: 8000, host: 8000
       all_in_one.vm.network :forwarded_port, guest: 8004, host: 8004
       all_in_one.vm.network :forwarded_port, guest: 80, host: 8880
       all_in_one.vm.network :forwarded_port, guest: 6080, host: 6080
       all_in_one.vm.provider "virtualbox" do |v|
-        v.customize ["modifyvm", :id, "--memory", 4 * 1024]
-        v.customize ['createhd', '--filename', block_file_to_disk, '--size', 50 * 1024]
-        v.customize ['createhd', '--filename', object_file_to_disk, '--size', 50 * 1024]
+        v.customize ["modifyvm", :id, "--memory", 5 * 1024]
+        unless File.exist?(block_file_to_disk)
+          v.customize ['createhd', '--filename', block_file_to_disk, '--size', 50 * 1024]
+        end
+        unless File.exist?(object_file_to_disk)
+          v.customize ['createhd', '--filename', object_file_to_disk, '--size', 50 * 1024]
+        end
         v.customize ['storageattach', :id, '--storagectl', conf['storage-controller'], '--port', 1, '--device', 0, '--type', 'hdd', '--medium', block_file_to_disk]
-	if conf['storage-controller'] == 'SATAController'
+        case conf['storage-controller']
+        when 'SATAController'
           v.customize ['storageattach', :id, '--storagectl', conf['storage-controller'], '--port', 2, '--device', 0, '--type', 'hdd', '--medium', object_file_to_disk]
-	else
+	    when 'IDE Controller'
           v.customize ['storageattach', :id, '--storagectl', conf['storage-controller'], '--port', 1, '--device', 1, '--type', 'hdd', '--medium', object_file_to_disk]
-	end
+        when 'IDE'
+          v.customize ['storageattach', :id, '--storagectl', conf['storage-controller'], '--port', 1, '--device', 0, '--type', 'hdd', '--medium', object_file_to_disk]
+	    end
       end
       all_in_one.vm.provision "shell", path: conf['package-manager'] + conf['all-in-one-script']
     end

@@ -8,58 +8,77 @@ cd /root/shared/setup
 
 # Identity Service
 
-# 0. Disable the keystone service from starting automatically after installation
+# 1. Install and configure components
 echo "manual" > /etc/init/keystone.override
 
-# 1. Install OpenStack Identity Service and dependencies
-apt-get install -y keystone python-openstackclient apache2 libapache2-mod-wsgi memcached python-memcache
+apt-get install -y keystone apache2 libapache2-mod-wsgi \
+  memcached python-memcache
 
 ./keystone.sh
+
+# 2.Configure the Apache HTTP Server
+
 echo "ServerName ${IDENTITY_HOSTNAME}">> /etc/apache2/apache2.conf
+
 cat <<EOL > /etc/apache2/sites-available/wsgi-keystone.conf
 Listen 5000
 Listen 35357
 
 <VirtualHost *:5000>
-    WSGIDaemonProcess keystone-public processes=5 threads=1 user=keystone display-name=%{GROUP}
+    WSGIDaemonProcess keystone-public processes=5 threads=1 user=keystone group=keystone display-name=%{GROUP}
     WSGIProcessGroup keystone-public
-    WSGIScriptAlias / /var/www/cgi-bin/keystone/main
+    WSGIScriptAlias / /usr/bin/keystone-wsgi-public
     WSGIApplicationGroup %{GLOBAL}
     WSGIPassAuthorization On
     <IfVersion >= 2.4>
-        ErrorLogFormat "%{cu}t %M"
+      ErrorLogFormat "%{cu}t %M"
     </IfVersion>
-    LogLevel info
-    ErrorLog /var/log/apache2/keystone-error.log
-    CustomLog /var/log/apache2/keystone-access.log combined
+    ErrorLog /var/log/apache2/keystone.log
+    CustomLog /var/log/apache2/keystone_access.log combined
+
+    <Directory /usr/bin>
+        <IfVersion >= 2.4>
+            Require all granted
+        </IfVersion>
+        <IfVersion < 2.4>
+            Order allow,deny
+            Allow from all
+        </IfVersion>
+    </Directory>
 </VirtualHost>
 
 <VirtualHost *:35357>
-    WSGIDaemonProcess keystone-admin processes=5 threads=1 user=keystone display-name=%{GROUP}
+    WSGIDaemonProcess keystone-admin processes=5 threads=1 user=keystone group=keystone display-name=%{GROUP}
     WSGIProcessGroup keystone-admin
-    WSGIScriptAlias / /var/www/cgi-bin/keystone/admin
+    WSGIScriptAlias / /usr/bin/keystone-wsgi-admin
     WSGIApplicationGroup %{GLOBAL}
     WSGIPassAuthorization On
     <IfVersion >= 2.4>
-        ErrorLogFormat "%{cu}t %M"
+      ErrorLogFormat "%{cu}t %M"
     </IfVersion>
-    LogLevel info
-    ErrorLog /var/log/apache2/keystone-error.log
-    CustomLog /var/log/apache2/keystone-access.log combined
+    ErrorLog /var/log/apache2/keystone.log
+    CustomLog /var/log/apache2/keystone_access.log combined
+
+    <Directory /usr/bin>
+        <IfVersion >= 2.4>
+            Require all granted
+        </IfVersion>
+        <IfVersion < 2.4>
+            Order allow,deny
+            Allow from all
+        </IfVersion>
+    </Directory>
 </VirtualHost>
 EOL
+
 ln -s /etc/apache2/sites-available/wsgi-keystone.conf /etc/apache2/sites-enabled
-mkdir -p /var/www/cgi-bin/keystone
-curl http://git.openstack.org/cgit/openstack/keystone/plain/httpd/keystone.py?h=stable/kilo \
- | tee /var/www/cgi-bin/keystone/main /var/www/cgi-bin/keystone/admin
 
-chown -R keystone:keystone /var/www/cgi-bin/keystone
-chmod 755 /var/www/cgi-bin/keystone/*
+# 3. Finalize the installation
 
-# 6. Restart service
 service apache2 restart
+
+rm -f /var/lib/keystone/keystone.db
 
 sleep 5
 
 ./create_initial_accounts.sh
-rm -f /var/lib/keystone/keystone.db

@@ -8,7 +8,9 @@ cd /root/shared/setup
 
 # Object Storage Service
 
-apt-get install -y swift swift-proxy python-swiftclient python-keystoneclient python-keystonemiddleware memcached
+apt-get install -y swift swift-proxy python-swiftclient \
+  python-keystoneclient python-keystonemiddleware \
+  memcached
 
 ./swift.sh
 

@@ -10,7 +10,10 @@ cd /root/shared/setup
 
 # 1. Install OpenStack Telemetry Controller Service and dependencies
 
-apt-get install -y ceilometer-api ceilometer-collector ceilometer-agent-central ceilometer-agent-notification ceilometer-alarm-evaluator ceilometer-alarm-notifier python-ceilometerclient python-awsauth python-pymongo mongodb-clients
+apt-get install -y ceilometer-api ceilometer-collector \
+  ceilometer-agent-central ceilometer-agent-notification \
+  ceilometer-alarm-evaluator ceilometer-alarm-notifier \
+  python-ceilometerclient mongodb-clients python-pymongo
 
 ./ceilometer.sh
 

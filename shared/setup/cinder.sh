@@ -1,31 +1,36 @@
 #!/bin/bash
 
-# 2. User, service and endpoint creation
+# Source the admin credentials to gain access
 source /root/admin-openrc.sh
-openstack user create cinder --password=${CINDER_PASS} --email=cinder@example.com
-openstack role add admin --user=cinder --project=service
-openstack service create --name=cinder --description="OpenStack Block Storage Service" volume
-openstack service create --name=cinderv2 --description "OpenStack Block Storage Service" volumev2
-openstack endpoint create \
-  --publicurl http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v2/%\(tenant_id\)s \
-  --internalurl http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v2/%\(tenant_id\)s \
-  --adminurl http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v2/%\(tenant_id\)s \
-  --region regionOne \
-  volume
-openstack endpoint create \
-  --publicurl http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v2/%\(tenant_id\)s \
-  --internalurl http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v2/%\(tenant_id\)s \
-  --adminurl http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v2/%\(tenant_id\)s \
-  --region regionOne \
-  volumev2
 
-# 3. Configure api service
-crudini --set /etc/cinder/cinder.conf database connection mysql://cinder:${CINDER_DBPASS}@${DATABASE_HOSTNAME}/cinder
+# Create a cinder user
+openstack user create --domain default cinder --password=${CINDER_PASS} --email=cinder@example.com
+
+# Add the admin role to the cinder user
+openstack role add --project service --user cinder admin
+
+# Create the cinderv2 service entity
+openstack service create --name cinderv2 \
+  --description "OpenStack Block Storage" volumev2
+
+# Create the Block Storage service API endpoints
+openstack endpoint create --region RegionOne \
+  volumev2 public http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v2/%\(tenant_id\)s
+openstack endpoint create --region RegionOne \
+  volumev2 internal http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v2/%\(tenant_id\)s
+openstack endpoint create --region RegionOne \
+  volumev2 admin http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v2/%\(tenant_id\)s
+
+# Configure database access
+crudini --set /etc/cinder/cinder.conf database connection mysql+pymysql://cinder:${CINDER_DBPASS}@${DATABASE_HOSTNAME}/cinder
+
+# Configure RabbitMQ message queue access
 crudini --set /etc/cinder/cinder.conf DEFAULT rpc_backend rabbit
 crudini --set /etc/cinder/cinder.conf oslo_messaging_rabbit rabbit_host ${MESSAGE_BROKER_HOSTNAME}
 crudini --set /etc/cinder/cinder.conf oslo_messaging_rabbit rabbit_userid openstack
 crudini --set /etc/cinder/cinder.conf oslo_messaging_rabbit rabbit_password ${RABBIT_PASS}
 
+# Configure Identity service access
 crudini --set /etc/cinder/cinder.conf DEFAULT auth_strategy keystone
 crudini --set /etc/cinder/cinder.conf keystone_authtoken auth_uri http://${IDENTITY_HOSTNAME}:5000
 crudini --set /etc/cinder/cinder.conf keystone_authtoken auth_url http://${IDENTITY_HOSTNAME}:35357
@@ -36,9 +41,11 @@ crudini --set /etc/cinder/cinder.conf keystone_authtoken project_name service
 crudini --set /etc/cinder/cinder.conf keystone_authtoken username cinder
 crudini --set /etc/cinder/cinder.conf keystone_authtoken password ${CINDER_PASS}
 
+# Configure the my_ip option to use the management interface IP address of the controller node
 crudini --set /etc/cinder/cinder.conf DEFAULT my_ip ${my_ip}
 
+# Configure the lock path
 crudini --set /etc/cinder/cinder.conf oslo_concurrency lock_path /var/lock/cinder
 
-# 4. Generate tables
+# Populate the Block Storage database
 su -s /bin/sh -c "cinder-manage db sync" cinder

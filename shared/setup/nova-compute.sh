@@ -1,29 +1,5 @@
 #!/bin/bash
 
-# Source the admin credentials to gain access
-source /root/admin-openrc.sh
-
-# Create the nova user
-openstack user create nova --password=${NOVA_PASS} --email=nova@example.com
-
-# Add the admin role to the nova user
-openstack role add admin --user=nova --project=service
-
-# Create the nova service entity
-openstack service create --name nova \
-  --description "OpenStack Compute" compute
-
-# Create the Compute service API endpoints
-openstack endpoint create --region RegionOne \
-  compute public http://${COMPUTE_CONTROLLER_HOSTNAME}:8774/v2/%\(tenant_id\)s
-openstack endpoint create --region RegionOne \
-  compute internal http://${COMPUTE_CONTROLLER_HOSTNAME}:8774/v2/%\(tenant_id\)s
-openstack endpoint create --region RegionOne \
-  compute admin http://${COMPUTE_CONTROLLER_HOSTNAME}:8774/v2/%\(tenant_id\)s
-
-# Configure database access
-crudini --set /etc/nova/nova.conf database connection mysql+pymysql://nova:${NOVA_DBPASS}@${DATABASE_HOSTNAME}/nova
-
 # Configure RabbitMQ message queue access
 crudini --set /etc/nova/nova.conf DEFAULT rpc_backend rabbit
 crudini --set /etc/nova/nova.conf oslo_messaging_rabbit rabbit_host ${MESSAGE_BROKER_HOSTNAME}
@@ -50,9 +26,11 @@ crudini --set /etc/nova/nova.conf DEFAULT security_group_api neutron
 crudini --set /etc/nova/nova.conf DEFAULT linuxnet_interface_driver nova.network.linux_net.NeutronLinuxBridgeInterfaceDriver
 crudini --set /etc/nova/nova.conf DEFAULT firewall_driver nova.virt.firewall.NoopFirewallDriver
 
-# Configure the VNC proxy to use the management interface IP address of the controller node
-crudini --set /etc/nova/nova.conf vnc vncserver_listen ${my_ip}
+# Enable and configure remote console access
+crudini --set /etc/nova/nova.conf vnc enabled True
+crudini --set /etc/nova/nova.conf vnc vncserver_listen 0.0.0.0
 crudini --set /etc/nova/nova.conf vnc vncserver_proxyclient_address ${my_ip}
+crudini --set /etc/nova/nova.conf vnc novncproxy_base_url http://${COMPUTE_CONTROLLER_HOSTNAME}:6080/vnc_auto.html
 
 # Configure the location of the Image service
 crudini --set /etc/nova/nova.conf glance host ${IMAGE_HOSTNAME}
@@ -60,8 +38,8 @@ crudini --set /etc/nova/nova.conf glance host ${IMAGE_HOSTNAME}
 # Configure the lock path
 crudini --set /etc/nova/nova.conf oslo_concurrency lock_path /var/lib/nova/tmp
 
-# Disable the EC2 API
-crudini --set /etc/nova/nova.conf DEFAULT enabled_apis osapi_compute,metadata
-
-# Populate the Compute database
-su -s /bin/sh -c "nova-manage db sync" nova
+# 6. Use KVM or QEMU
+supports_hardware_acceleration=`egrep -c '(vmx|svm)' /proc/cpuinfo`
+if [ $supports_hardware_acceleration -eq 0 ]; then
+  crudini --set /etc/nova/nova-compute.conf libvirt virt_type qemu
+fi

@@ -38,9 +38,8 @@ apt-get install -y cinder-volume python-mysqldb
 
 ./configure_ceilometer_block_storage.sh
 
-# 11. Restart services
+# Restart the Block Storage volume service including its dependencies
 service tgt restart
 service cinder-volume restart
 
-# 12. Remove unnecessary files
 rm -f /var/lib/cinder/cinder.sqlite

@@ -13,10 +13,12 @@ apt-get install -y cinder-api cinder-scheduler python-cinderclient
 
 ./cinder.sh
 
-# Block Storage - Telemetry services
+# Telemetry services
 
 ./configure_ceilometer_block_storage_controller.sh
 
-# 6. Enable and start services
+# Restart the Block Storage services
 service cinder-scheduler restart
 service cinder-api restart
+
+rm -f /var/lib/cinder/cinder.sqlite

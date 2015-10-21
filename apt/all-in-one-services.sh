@@ -11,6 +11,7 @@ cd /root/scripts
 ./keystone.sh
 ./glance.sh
 ./nova-controller.sh
+./neutron-controller.sh
 ./horizon.sh
 ./cinder-controller.sh
 ./heat-controller.sh

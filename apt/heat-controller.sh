@@ -8,7 +8,8 @@ cd /root/shared/setup
 
 # Orchestration service
 
-apt-get install -y  heat-api heat-api-cfn heat-engine python-heatclient
+apt-get install -y heat-api heat-api-cfn heat-engine \
+  python-heatclient
 
 ./heat.sh
 

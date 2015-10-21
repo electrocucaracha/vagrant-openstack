@@ -6,16 +6,6 @@ popd
 ./repo.sh
 cd /root/shared/setup
 
-# Compute - Networking services
-
-apt-get install -y nova-network
-
-./setup_legacy_network_compute.sh
-
-service nova-network restart
-
-nova network-create demo-net --bridge br100 --fixed-range-v4 203.0.113.24/29
-
 # Compute - Telemetry services
 
 apt-get install -y ceilometer-agent-compute
@@ -30,13 +20,9 @@ service nova-compute restart
 # 1. Install compute packages
 apt-get install -y  nova-compute sysfsutils
 
-# 6. Use KVM or QEMU
-supports_hardware_acceleration=`egrep -c '(vmx|svm)' /proc/cpuinfo`
-if [ $supports_hardware_acceleration -eq 0 ]; then
-  sed -i "s/kvm/qemu/g" /etc/nova/nova-compute.conf
-fi
+./nova-compute.sh
 
-# 6.1 Enable libvirt tcp port for live-migration
+# Enable libvirt tcp port for live-migration
 sed -i "s/#listen_tls = 0/listen_tls = 0/g" /etc/libvirt/libvirtd.conf
 sed -i "s/#listen_tcp = 1/listen_tcp = 1/g" /etc/libvirt/libvirtd.conf
 sed -i "s/^#listen_addr = .*/listen_addr = \"0.0.0.0\"/g" /etc/libvirt/libvirtd.conf
@@ -45,8 +31,26 @@ sed -i "s/#auth_tcp = \"sasl\"/auth_tcp = \"none\"/g" /etc/libvirt/libvirtd.conf
 sed -i "s/libvirtd_opts=\"-d\"/libvirtd_opts=\"-l -d\"/g" /etc/default/libvirt-bin
 service libvirt-bin restart
 
-# 8. Restart service
+# Finalize installation
 service nova-compute restart
+rm -f /var/lib/nova/nova.sqlite
+
+# Network services
+
+cat << EOF > /etc/sysctl.conf
+net.ipv4.ip_forward=1
+net.ipv4.conf.all.rp_filter=0
+net.ipv4.conf.default.rp_filter=0
+EOF
+
+sysctl -p
+
+apt-get install -y neutron-plugin-linuxbridge-agent
+
+./neutron-compute.sh
+
+service nova-compute restart
+service neutron-plugin-linuxbridge-agent restart
 
 # Linux container services
 
@@ -55,7 +59,7 @@ apt-get install -y git python-dev
 # 1. Install nova-docker
 git clone https://github.com/stackforge/nova-docker /tmp/nova-docker
 pushd /tmp/nova-docker
-git checkout stable/kilo
+git checkout stable/liberty
 cp etc/nova/rootwrap.d/docker.filters /etc/nova/rootwrap.d
 curl https://bootstrap.pypa.io/get-pip.py | python
 pip install .
@@ -96,7 +100,7 @@ service glance-api restart
 
 docker pull larsks/thttpd
 
-docker save larsks/thttpd | glance image-create --is-public True --container-format docker \
+docker save larsks/thttpd | glance image-create --visibility public --container-format docker \
       --disk-format raw --name larsks/thttpd
 
 # LXD
@@ -141,5 +145,5 @@ EOL
 service nova-compute-lxd restart
 
 # Add images
-wget -O vivid-server-cloudimg-amd64-root.tar.gz https://cloud-images.ubuntu.com/vivid/current/ vivid-server-cloudimg-amd64-root.tar.gz
-glance image-create --name='lxc' --container-format=bare --disk-format=raw --file=vivid-server-cloudimg-amd64-root.tar.gz
+curl https://cloud-images.ubuntu.com/vivid/current/ -o /tmp/vivid-server.tar.gz
+glance image-create --name='lxc' --container-format=bare --disk-format=raw --file=/tmp/vivid-server.tar.gz

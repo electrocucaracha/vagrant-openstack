@@ -11,18 +11,24 @@ cd setup
 
 # Compute services
 
-# 1. Install OpenStack Compute Controller Service and dependencies
-apt-get install -y nova-api nova-cert nova-conductor nova-consoleauth nova-novncproxy nova-scheduler python-novaclient
+# 1. Install and configure components
+apt-get install -y nova-api nova-cert nova-conductor \
+  nova-consoleauth nova-novncproxy nova-scheduler \
+  python-novaclient
 
 ./nova.sh
-rm /var/lib/nova/nova.sqlite
 
-./setup_legacy_network_controller.sh
+# Block Storage services
 
-# 6. Restart services
+./cinder-compute.sh
+
+# 2. Finalize installation
+
 service nova-api restart
 service nova-cert restart
 service nova-consoleauth restart
 service nova-scheduler restart
 service nova-conductor restart
 service nova-novncproxy restart
+
+rm -f /var/lib/nova/nova.sqlite

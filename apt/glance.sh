@@ -8,7 +8,7 @@ cd /root/shared/setup
 
 # Image Service
 
-# 1. Install OpenStack Image Service and dependencies
+# 1. Install the packages
 apt-get install -y glance python-glanceclient
 
 ./glance.sh

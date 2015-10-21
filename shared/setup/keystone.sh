@@ -1,25 +1,22 @@
 #!/bin/bash
 
-# 2. Configure Database driver
-crudini --set /etc/keystone/keystone.conf database connection mysql://keystone:${KEYSTONE_DBPASS}@${DATABASE_HOSTNAME}/keystone
-crudini --set /etc/keystone/keystone.conf revoke driver keystone.contrib.revoke.backends.sql.Revoke
+# Define the value of the initial administration token
+crudini --set /etc/keystone/keystone.conf DEFAULT admin_token ${token}
 
-# 2.1 Configure Memcached
+# Configure database access
+crudini --set /etc/keystone/keystone.conf database connection mysql+pymysql://keystone:${KEYSTONE_DBPASS}@${DATABASE_HOSTNAME}/keystone
+
+# Configure the Memcache service
 crudini --set /etc/keystone/keystone.conf memcache servers localhost:11211
-crudini --set /etc/keystone/keystone.conf token provider keystone.token.providers.uuid.Provider
-crudini --set /etc/keystone/keystone.conf token driver keystone.token.persistence.backends.memcache.Token
 
-crudini --set /etc/keystone/keystone.conf revoke driver keystone.contrib.revoke.backends.sql.Revoke
+# Configure the UUID token provider and Memcached drive
+crudini --set /etc/keystone/keystone.conf token provider uuid
+# It seems like there are issues with python-memcache(https://bugs.launchpad.net/keystone/+bug/1462152/comments/6)
+#crudini --set /etc/keystone/keystone.conf token driver memcache
 
-# 3. Generate tables
+# Configure the SQL revocation driver
+crudini --set /etc/keystone/keystone.conf revoke driver sql
+
+# Populate the Identity service database 
 su -s /bin/sh -c "keystone-manage db_sync" keystone
 
-mkdir -p /var/www/cgi-bin/keystone
-wget -O /var/www/cgi-bin/keystone/main http://git.openstack.org/cgit/openstack/keystone/plain/httpd/keystone.py?h=stable/kilo
-cp /var/www/cgi-bin/keystone/main /var/www/cgi-bin/keystone/admin
-
-chown -R keystone:keystone /var/www/cgi-bin/keystone
-chmod 755 /var/www/cgi-bin/keystone/*
-
-# 5. Configurate authorization token
-crudini --set /etc/keystone/keystone.conf DEFAULT admin_token ${token}
