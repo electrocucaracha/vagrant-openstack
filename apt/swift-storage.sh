@@ -59,7 +59,7 @@ sed -i "s/RSYNC_ENABLE=false/RSYNC_ENABLE=true/g" /etc/default/rsync
 
 service rsync restart
 
-apt-get install -y  swift swift-account swift-container swift-object
+apt-get install -y swift swift-account swift-container swift-object
 
 ./swift-storage.sh
 ./create_initial.sh
