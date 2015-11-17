@@ -10,10 +10,19 @@ openstack user create --domain default cinder --password=${CINDER_PASS} --email=
 openstack role add --project service --user cinder admin
 
 # Create the cinderv2 service entity
+openstack service create --name cinder \
+  --description "OpenStack Block Storage" volume
 openstack service create --name cinderv2 \
   --description "OpenStack Block Storage" volumev2
 
 # Create the Block Storage service API endpoints
+openstack endpoint create --region RegionOne \
+  volume public http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v2/%\(tenant_id\)s
+openstack endpoint create --region RegionOne \
+  volume internal http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v2/%\(tenant_id\)s
+openstack endpoint create --region RegionOne \
+  volume admin http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v2/%\(tenant_id\)s
+
 openstack endpoint create --region RegionOne \
   volumev2 public http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v2/%\(tenant_id\)s
 openstack endpoint create --region RegionOne \
@@ -46,6 +55,9 @@ crudini --set /etc/cinder/cinder.conf DEFAULT my_ip ${my_ip}
 
 # Configure the lock path
 crudini --set /etc/cinder/cinder.conf oslo_concurrency lock_path /var/lock/cinder
+
+# Configure key manager
+crudini --set /etc/cinder/cinder.conf keymgr encryption_auth_url http://${IDENTITY_HOSTNAME}:5000/v3
 
 # Populate the Block Storage database
 su -s /bin/sh -c "cinder-manage db sync" cinder
