@@ -5,12 +5,12 @@ source /root/admin-openrc.sh
 openstack user create sahara --password=${SAHARA_PASS} --email=sahara@example.com
 openstack role add admin --user=sahara --project=service
 openstack service create --name=sahara --description="OpenStack Data Processing Service" data-processing
-openstack endpoint create \
-  --publicurl http://${DATA_HOSTNAME}:8386/v1.1/%\(tenant_id\)s \
-  --internalurl http://${DATA_HOSTNAME}:8386/v1.1/%\(tenant_id\)s \
-  --adminurl http://${DATA_HOSTNAME}:8386/v1.1/%\(tenant_id\)s \
-  --region regionOne \
-  data-processing
+openstack endpoint create --region RegionOne \
+  data-processing public http://${DATA_HOSTNAME}:8386/v1.1/%\(tenant_id\)s
+openstack endpoint create --region RegionOne \
+  data-processing internal http://${DATA_HOSTNAME}:8386/v1.1/%\(tenant_id\)s
+openstack endpoint create --region RegionOne \
+  data-processing admin http://${DATA_HOSTNAME}:8386/v1.1/%\(tenant_id\)s
 
 # 3. Configure api service
 crudini --set /etc/sahara/sahara.conf database connection mysql://sahara:${SAHARA_DBPASS}@${DATABASE_HOSTNAME}/sahara
@@ -28,6 +28,8 @@ crudini --set /etc/sahara/sahara.conf keystone_authtoken user_domain_id default
 crudini --set /etc/sahara/sahara.conf keystone_authtoken project_name service
 crudini --set /etc/sahara/sahara.conf keystone_authtoken username sahara
 crudini --set /etc/sahara/sahara.conf keystone_authtoken password ${SAHARA_PASS}
+
+sed -i '1d' /etc/sahara/sahara.conf
 
 # 4. Generate tables
 su -s /bin/sh -c "sahara-db-manage upgrade head" sahara

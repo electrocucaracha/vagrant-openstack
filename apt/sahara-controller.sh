@@ -7,9 +7,8 @@ popd
 cd /root/shared/setup
 
 # Install OpenStack Data Service
-yes | pip install sahara
-#apt-get install -y sahara sahara-api sahara-engine
+apt-get install -y sahara
 
 ./sahara.sh
 
-service sahara-all restart
+service sahara restart

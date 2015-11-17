@@ -18,7 +18,7 @@ cd /root/scripts
 ./ceilometer-controller.sh
 ./swift-controller.sh
 #./trove-controller.sh
-#./sahara-controller.sh
+./sahara-controller.sh
 
 ./nova-compute.sh
 
