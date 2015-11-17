@@ -1,3 +1,3 @@
-vagrant-box : chef/centos-7.0
+vagrant-box : centos/7
 package-manager : yum
 storage-controller : IDE Controller

@@ -1,0 +1,3 @@
+vagrant-box : elatov/opensuse13-64
+package-manager : zypper
+storage-controller : IDE
