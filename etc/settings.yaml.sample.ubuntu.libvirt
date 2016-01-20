@@ -1,0 +1,2 @@
+vagrant-box : sputnik13/trusty64
+package-manager : apt
