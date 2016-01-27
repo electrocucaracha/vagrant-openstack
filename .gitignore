@@ -1,5 +1,6 @@
-.vagrant/
+.DS_Store
 etc/settings.yaml
 shared/proxyrc
+*.swp
+.vagrant/
 *.vdi
-.DS_Store
