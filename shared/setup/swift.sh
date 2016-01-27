@@ -23,7 +23,7 @@ openstack endpoint create --region RegionOne \
 
 mkdir -p /etc/swift 
 
-curl -o /etc/swift/proxy-server.conf https://git.openstack.org/cgit/openstack/swift/plain/etc/proxy-server.conf-sample?h=stable/liberty
+wget -O /etc/swift/proxy-server.conf https://git.openstack.org/cgit/openstack/swift/plain/etc/proxy-server.conf-sample?h=stable/liberty
 
 # Configure the bind port, user, and configuration directory
 crudini --set /etc/swift/proxy-server.conf DEFAULT bind_port 8080

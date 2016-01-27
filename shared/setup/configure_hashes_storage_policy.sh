@@ -1,6 +1,6 @@
 #! /bin/bash
 
-curl -o /etc/swift/swift.conf https://git.openstack.org/cgit/openstack/swift/plain/etc/swift.conf-sample?h=stable/liberty
+wget -O /etc/swift/swift.conf https://git.openstack.org/cgit/openstack/swift/plain/etc/swift.conf-sample?h=stable/liberty
 
 HASH_PATH_PREFIX=`openssl rand -hex 10`
 HASH_PATH_SUFFIX=`openssl rand -hex 10`
