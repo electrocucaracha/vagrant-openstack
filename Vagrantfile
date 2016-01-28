@@ -69,6 +69,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       all_in_one.vm.network :forwarded_port, guest: 8004, host: 8004
       all_in_one.vm.network :forwarded_port, guest: 80, host: 8880
       all_in_one.vm.network :forwarded_port, guest: 6080, host: 6080
+      all_in_one.vm.provider "libvirt" do |v|
+        v.memory = 5 * 1024
+        v.nested = true
+        v.cpu_mode = "host-passthrough"
+        v.storage :file, path: 'extra', bus: 'sata', device: 'sda', size: '5M'
+        v.storage :file, path: block_file_to_disk, bus: 'sata', device: 'sdb', size: '5G'
+        v.storage :file, path: object_file_to_disk, bus: 'sata', device: 'sdc', size: '5G'
+      end
       all_in_one.vm.provider "virtualbox" do |v|
         v.customize ["modifyvm", :id, "--memory", 5 * 1024]
         unless File.exist?(block_file_to_disk)

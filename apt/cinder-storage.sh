@@ -14,12 +14,12 @@ cat <<EOL > /tmp/sdb.layout
 # partition table of /dev/sdb
 unit: sectors
 
-/dev/sdb1 : start=     2048, size= 83884032, Id=83, bootable
+/dev/sdb1 : start=     2048, size= 10483712, Id=83
 /dev/sdb2 : start=        0, size=        0, Id= 0
 /dev/sdb3 : start=        0, size=        0, Id= 0
 /dev/sdb4 : start=        0, size=        0, Id= 0
 EOL
-sfdisk /dev/sdb < /tmp/sdb.layout
+sfdisk --force /dev/sdb < /tmp/sdb.layout
 
 # 3. Create the LVM physical volume /dev/sdb1
 pvcreate /dev/sdb1

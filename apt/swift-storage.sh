@@ -14,12 +14,12 @@ cat <<EOL > /tmp/sdc.layout
 # partition table of /dev/sdc
 unit: sectors
 
-/dev/sdc1 : start=     2048, size= 83884032, Id=83, bootable
+/dev/sdc1 : start=     2048, size= 10483712, Id=83
 /dev/sdc2 : start=        0, size=        0, Id= 0
 /dev/sdc3 : start=        0, size=        0, Id= 0
 /dev/sdc4 : start=        0, size=        0, Id= 0
 EOL
-sfdisk /dev/sdc < /tmp/sdc.layout
+sfdisk --force /dev/sdc < /tmp/sdc.layout
 
 # Format the partition
 mkfs.xfs /dev/sdc1
