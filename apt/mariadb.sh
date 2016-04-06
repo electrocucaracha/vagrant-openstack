@@ -19,7 +19,7 @@ service mysql restart
 
 sleep 5
 
-echo -e "${ROOT_DBPASS}\nn\nY\nY\n\Y\n" | mysql_secure_installation
+echo -e "${ROOT_DBPASS}\nn\nY\nY\nY\n" | mysql_secure_installation
 
 mysql -uroot -p${ROOT_DBPASS} -e "CREATE DATABASE if not exists keystone;"
 mysql -uroot -p${ROOT_DBPASS} -e "CREATE DATABASE if not exists glance;"
