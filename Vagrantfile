@@ -53,22 +53,23 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.define :all_in_one do |all_in_one|
       all_in_one.vm.hostname = 'all-in-one'
       all_in_one.vm.network :private_network, ip: '192.168.50.2'
-      all_in_one.vm.network :forwarded_port, guest: 5672, host: 5672 
-      all_in_one.vm.network :forwarded_port, guest: 15672, host: 15672 
-      all_in_one.vm.network :forwarded_port, guest: 3306, host: 3306
-      all_in_one.vm.network :forwarded_port, guest: 27017, host: 27017
-      all_in_one.vm.network :forwarded_port, guest: 5000, host: 5000
-      all_in_one.vm.network :forwarded_port, guest: 35357, host: 35357
-      all_in_one.vm.network :forwarded_port, guest: 9292, host: 9292
-      all_in_one.vm.network :forwarded_port, guest: 8774, host: 8774
-      all_in_one.vm.network :forwarded_port, guest: 8776, host: 8776
-      all_in_one.vm.network :forwarded_port, guest: 8777, host: 8777
-      all_in_one.vm.network :forwarded_port, guest: 9696, host: 9696
-      all_in_one.vm.network :forwarded_port, guest: 8080, host: 8080
-      all_in_one.vm.network :forwarded_port, guest: 8000, host: 8000
-      all_in_one.vm.network :forwarded_port, guest: 8004, host: 8004
-      all_in_one.vm.network :forwarded_port, guest: 80, host: 8880
-      all_in_one.vm.network :forwarded_port, guest: 6080, host: 6080
+      all_in_one.vm.network :forwarded_port, guest: 5672, host: 5672   # RabbitMQ
+      all_in_one.vm.network :forwarded_port, guest: 15672, host: 15672 # RabbitMQ Dashboard
+      all_in_one.vm.network :forwarded_port, guest: 3306, host: 3306   # MariaDB
+      all_in_one.vm.network :forwarded_port, guest: 27017, host: 27017 # Libvirt
+      all_in_one.vm.network :forwarded_port, guest: 5000, host: 5000   # OpenStack Identity
+      all_in_one.vm.network :forwarded_port, guest: 35357, host: 35357 # OpenStack Identity
+      all_in_one.vm.network :forwarded_port, guest: 9292, host: 9292   # OpenStack Image
+      all_in_one.vm.network :forwarded_port, guest: 8386, host: 8386   # OpenStack Data Processing
+      all_in_one.vm.network :forwarded_port, guest: 8774, host: 8774   # OpenStack Compute
+      all_in_one.vm.network :forwarded_port, guest: 8776, host: 8776   # OpenStack Volume
+      all_in_one.vm.network :forwarded_port, guest: 8777, host: 8777   # OpenStack Metering
+      all_in_one.vm.network :forwarded_port, guest: 9696, host: 9696   # OpenStack Networking
+      all_in_one.vm.network :forwarded_port, guest: 8080, host: 8080   # OpenStack Object Storage
+      all_in_one.vm.network :forwarded_port, guest: 8000, host: 8000   # OpenStack CloudFormation
+      all_in_one.vm.network :forwarded_port, guest: 8004, host: 8004   # OpenStack Orchestration
+      all_in_one.vm.network :forwarded_port, guest: 80, host: 8888     # OpenStack Dashboard
+      all_in_one.vm.network :forwarded_port, guest: 6080, host: 6080   # VNC
       all_in_one.vm.provider "libvirt" do |v|
         v.memory = 5 * 1024
         v.nested = true
