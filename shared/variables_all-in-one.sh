@@ -2,8 +2,8 @@
 
 # Global variables
 export token=`openssl rand -hex 10`
-export my_nic=`ip route | awk '/192./ { print $3 }'`
-export my_ip=`ip addr | awk "/${my_nic}\$/ { sub(/\/24/, \"\","' $2); print $2}'`
+export my_nic=`ip route get 192.168.50.1 | awk '{ print $3; exit }'`
+export my_ip=`ip route get 192.168.50.1 | awk '{ print $NF; exit }'`
 
 export ENABLE_PROFILER="False"
 
