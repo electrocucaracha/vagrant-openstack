@@ -67,6 +67,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       all_in_one.vm.network :forwarded_port, guest: 9696, host: 9696   # OpenStack Networking
       all_in_one.vm.network :forwarded_port, guest: 8080, host: 8080   # OpenStack Object Storage
       all_in_one.vm.network :forwarded_port, guest: 8000, host: 8000   # OpenStack CloudFormation
+      all_in_one.vm.network :forwarded_port, guest: 8181, host: 8181   # OpenDayLight Dashboard
       all_in_one.vm.network :forwarded_port, guest: 8004, host: 8004   # OpenStack Orchestration
       all_in_one.vm.network :forwarded_port, guest: 80, host: 8888     # OpenStack Dashboard
       all_in_one.vm.network :forwarded_port, guest: 6080, host: 6080   # VNC

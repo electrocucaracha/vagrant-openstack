@@ -7,6 +7,7 @@ cd /root/scripts
 ./rabbitmq.sh
 ./mariadb.sh
 ./mongodb.sh
+./opendaylight.sh
 
 ./keystone.sh
 ./glance.sh
