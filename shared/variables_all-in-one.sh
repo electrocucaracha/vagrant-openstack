@@ -21,6 +21,7 @@ export TELEMETRY_CONTROLLER_HOSTNAME=all-in-one
 export ORCHESTRATION_HOSTNAME=all-in-one
 export DATABASE_CONTROLLER_HOSTNAME=all-in-one
 export DATA_HOSTNAME=all-in-one
+export OPENDAYLIGHT_IP=${my_ip}
 
 # Service passwords
 export ROOT_DBPASS=secure
