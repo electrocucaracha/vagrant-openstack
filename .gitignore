@@ -1,6 +1,7 @@
 .DS_Store
 etc/settings.yaml
 shared/proxyrc
+apt/sources.list
 *.swp
 .vagrant/
 *.vdi
