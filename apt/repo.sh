@@ -1,6 +1,7 @@
 #!/bin/bash
 
-apt-get install -y ubuntu-cloud-keyring
+apt-get install software-properties-common
+add-apt-repository -y cloud-archive:mitaka
 if [ -f /root/shared/sources.list ]
 then
   cp /root/scripts/sources.list /etc/apt/sources.list
