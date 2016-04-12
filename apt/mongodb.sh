@@ -4,6 +4,8 @@ cd /root/shared
 source configure.sh
 cd setup
 
+apt-get update -y && apt-get dist-upgrade -y
+
 # 1. Install database server
 apt-get install -y mongodb-server
 
