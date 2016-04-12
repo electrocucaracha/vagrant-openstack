@@ -1,6 +1,6 @@
 #!/bin/bash
 
-apt-get install software-properties-common
+apt-get install -y software-properties-common python-software-properties
 add-apt-repository -y cloud-archive:mitaka
 if [ -f /root/shared/sources.list ]
 then
