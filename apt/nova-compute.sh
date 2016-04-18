@@ -18,7 +18,7 @@ service nova-compute restart
 # Compute services
 
 # 1. Install compute packages
-apt-get install -y  nova-compute sysfsutils
+apt-get install -y nova-compute
 
 ./nova-compute.sh
 

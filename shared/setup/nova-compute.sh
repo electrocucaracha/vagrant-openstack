@@ -10,9 +10,10 @@ crudini --set /etc/nova/nova.conf oslo_messaging_rabbit rabbit_password ${RABBIT
 crudini --set /etc/nova/nova.conf DEFAULT auth_strategy keystone
 crudini --set /etc/nova/nova.conf keystone_authtoken auth_uri http://${IDENTITY_HOSTNAME}:5000
 crudini --set /etc/nova/nova.conf keystone_authtoken auth_url http://${IDENTITY_HOSTNAME}:35357
+crudini --set /etc/nova/nova.conf keystone_authtoken memcached_servers controller:11211
 crudini --set /etc/nova/nova.conf keystone_authtoken auth_plugin password
-crudini --set /etc/nova/nova.conf keystone_authtoken project_domain_id default
-crudini --set /etc/nova/nova.conf keystone_authtoken user_domain_id default
+crudini --set /etc/nova/nova.conf keystone_authtoken project_domain_name default
+crudini --set /etc/nova/nova.conf keystone_authtoken user_domain_name default
 crudini --set /etc/nova/nova.conf keystone_authtoken project_name service
 crudini --set /etc/nova/nova.conf keystone_authtoken username nova
 crudini --set /etc/nova/nova.conf keystone_authtoken password ${NOVA_PASS}
@@ -21,9 +22,7 @@ crudini --set /etc/nova/nova.conf keystone_authtoken password ${NOVA_PASS}
 crudini --set /etc/nova/nova.conf DEFAULT my_ip ${my_ip}
 
 # Enable support for the Networking service
-crudini --set /etc/nova/nova.conf DEFAULT network_api_class nova.network.neutronv2.api.API
-crudini --set /etc/nova/nova.conf DEFAULT security_group_api neutron
-crudini --set /etc/nova/nova.conf DEFAULT linuxnet_interface_driver nova.network.linux_net.NeutronLinuxBridgeInterfaceDriver
+crudini --set /etc/nova/nova.conf DEFAULT use_neutron True
 crudini --set /etc/nova/nova.conf DEFAULT firewall_driver nova.virt.firewall.NoopFirewallDriver
 
 # Enable and configure remote console access
