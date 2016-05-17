@@ -27,7 +27,7 @@ crudini --set /etc/glance/glance-api.conf database connection mysql+pymysql://gl
 # Configure Identity service access
 crudini --set /etc/glance/glance-api.conf keystone_authtoken auth_uri http://${IDENTITY_HOSTNAME}:5000
 crudini --set /etc/glance/glance-api.conf keystone_authtoken auth_url http://${IDENTITY_HOSTNAME}:35357
-crudini --set /etc/glance/glance-api.conf keystone_authtoken memcached_servers controller:11211
+crudini --set /etc/glance/glance-api.conf keystone_authtoken memcached_servers ${MEMCACHED_HOSTNAME}:11211
 crudini --set /etc/glance/glance-api.conf keystone_authtoken auth_plugin password
 crudini --set /etc/glance/glance-api.conf keystone_authtoken project_domain_name default
 crudini --set /etc/glance/glance-api.conf keystone_authtoken user_domain_name default
@@ -48,7 +48,7 @@ crudini --set /etc/glance/glance-registry.conf database connection mysql+pymysql
 # Configure Identity service access
 crudini --set /etc/glance/glance-registry.conf keystone_authtoken auth_uri http://${IDENTITY_HOSTNAME}:5000
 crudini --set /etc/glance/glance-registry.conf keystone_authtoken auth_url http://${IDENTITY_HOSTNAME}:35357
-crudini --set /etc/glance/glance-registry.conf keystone_authtoken memcached_servers controller:11211
+crudini --set /etc/glance/glance-registry.conf keystone_authtoken memcached_servers ${MEMCACHED_HOSTNAME}:11211
 crudini --set /etc/glance/glance-registry.conf keystone_authtoken auth_plugin password
 crudini --set /etc/glance/glance-registry.conf keystone_authtoken project_domain_name default
 crudini --set /etc/glance/glance-registry.conf keystone_authtoken user_domain_name default

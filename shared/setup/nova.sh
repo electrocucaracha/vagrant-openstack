@@ -38,7 +38,7 @@ crudini --set /etc/nova/nova.conf oslo_messaging_rabbit rabbit_password ${RABBIT
 crudini --set /etc/nova/nova.conf DEFAULT auth_strategy keystone
 crudini --set /etc/nova/nova.conf keystone_authtoken auth_uri http://${IDENTITY_HOSTNAME}:5000
 crudini --set /etc/nova/nova.conf keystone_authtoken auth_url http://${IDENTITY_HOSTNAME}:35357
-crudini --set /etc/nova/nova.conf keystone_authtoken memcached_servers controller:11211
+crudini --set /etc/nova/nova.conf keystone_authtoken memcached_servers ${MEMCACHED_HOSTNAME}:11211
 crudini --set /etc/nova/nova.conf keystone_authtoken auth_plugin password
 crudini --set /etc/nova/nova.conf keystone_authtoken project_domain_name default
 crudini --set /etc/nova/nova.conf keystone_authtoken user_domain_name default

@@ -21,6 +21,8 @@ export ORCHESTRATION_HOSTNAME=orchestration
 export TELEMETRY_CONTROLLER_HOSTNAME=telemetry-controller
 export DATABASE_CONTROLLER_HOSTNAME=database-controller
 export DATA_HOSTNAME=data
+export MEMCACHED_HOSTNAME=memcached
+export OPENDAYLIGHT_IP=${my_ip}
 
 # Service passwords
 export ROOT_DBPASS=secure
