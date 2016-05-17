@@ -4,10 +4,10 @@
 source /root/admin-openrc.sh
 
 # Create the neutron user
-openstack user create neutron --password=${NEUTRON_PASS} --email=neutron@example.com
+openstack user create --domain default neutron --password ${NEUTRON_PASS} --email neutron@example.com
 
 # Add the admin role to the neutron user
-openstack role add admin --user=neutron --project=service
+openstack role add --project service --user neutron admin
 
 # Create the neutron service entity
 openstack service create --name neutron \
@@ -39,9 +39,10 @@ crudini --set /etc/neutron/neutron.conf oslo_messaging_rabbit rabbit_password ${
 crudini --set /etc/neutron/neutron.conf DEFAULT auth_strategy keystone
 crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_uri http://${IDENTITY_HOSTNAME}:5000
 crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_url http://${IDENTITY_HOSTNAME}:35357
-crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_plugin password
-crudini --set /etc/neutron/neutron.conf keystone_authtoken project_domain_id default
-crudini --set /etc/neutron/neutron.conf keystone_authtoken user_domain_id default
+crudini --set /etc/neutron/neutron.conf keystone_authtoken memcached_servers ${MEMCACHED_HOSTNAME}:11211
+crudini --set /etc/neutron/neutron.conf keystone_authtoken auth_type password
+crudini --set /etc/neutron/neutron.conf keystone_authtoken project_domain_name default
+crudini --set /etc/neutron/neutron.conf keystone_authtoken user_domain_name default
 crudini --set /etc/neutron/neutron.conf keystone_authtoken project_name service
 crudini --set /etc/neutron/neutron.conf keystone_authtoken username neutron
 crudini --set /etc/neutron/neutron.conf keystone_authtoken password ${NEUTRON_PASS}
@@ -52,9 +53,9 @@ crudini --set /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_data_changes
 crudini --set /etc/neutron/neutron.conf DEFAULT nova_url http://${COMPUTE_CONTROLLER_HOSTNAME}:8774/v2
 
 crudini --set /etc/neutron/neutron.conf nova auth_url http://${IDENTITY_HOSTNAME}:35357
-crudini --set /etc/neutron/neutron.conf nova auth_plugin password
-crudini --set /etc/neutron/neutron.conf nova project_domain_id default
-crudini --set /etc/neutron/neutron.conf nova user_domain_id default
+crudini --set /etc/neutron/neutron.conf nova auth_type password
+crudini --set /etc/neutron/neutron.conf nova project_domain_name default
+crudini --set /etc/neutron/neutron.conf nova user_domain_name default
 crudini --set /etc/neutron/neutron.conf nova region_name RegionOne
 crudini --set /etc/neutron/neutron.conf nova project_name service
 crudini --set /etc/neutron/neutron.conf nova username nova
@@ -75,10 +76,13 @@ crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 mechanism_drivers linuxb
 crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 extension_drivers port_security
 
 # Configure the public flat provider network
-crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2_type_flat flat_networks public
+crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2_type_flat flat_networks provider
 
 # Configure the VXLAN network identifier range for private networks
 crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2_type_vxlan vni_ranges 1:1000
+
+# Enable ipset to increase efficiency of security group rules
+crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini securitygroup enable_ipset True
 
 # Configure teh Linux bridge agent
 
@@ -90,12 +94,8 @@ crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini vxlan enable_vxlan 
 crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini vxlan local_ip ${my_ip}
 crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini vxlan l2_population True
 
-# Enable ARP spoofing protection
-crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini agent prevent_arp_spoofing True
-
 # Enable security groups, enable ipset, and configure the Linux bridge iptables firewall driver
 crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini securitygroup enable_security_group True
-crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini securitygroup enable_ipset True
 crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini securitygroup firewall_driver neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
 
 # Configure the layer-3 agent
@@ -111,29 +111,10 @@ crudini --set /etc/neutron/dhcp_agent.ini DEFAULT interface_driver neutron.agent
 crudini --set /etc/neutron/dhcp_agent.ini DEFAULT dhcp_driver neutron.agent.linux.dhcp.Dnsmasq
 crudini --set /etc/neutron/dhcp_agent.ini DEFAULT enable_isolated_metadata True
 
-# Enable the dnsmasq configuration file
-crudini --set /etc/neutron/dhcp_agent.ini DEFAULT dnsmasq_config_file /etc/neutron/dnsmasq-neutron.conf
-
-# Enable the DHCP MTU option (26) and configure it to 1450 bytes
-echo "dhcp-option-force=26,1450" > /etc/neutron/dnsmasq-neutron.conf
-
 # Configure the metada agent
 
-# Configure access parameters
-crudini --set /etc/neutron/metadata_agent.ini DEFAULT auth_uri http://${IDENTITY_HOSTNAME}:5000
-crudini --set /etc/neutron/metadata_agent.ini DEFAULT auth_url http://${IDENTITY_HOSTNAME}:35357
-crudini --set /etc/neutron/metadata_agent.ini DEFAULT auth_region RegionOne
-crudini --set /etc/neutron/metadata_agent.ini DEFAULT auth_plugin password
-crudini --set /etc/neutron/metadata_agent.ini DEFAULT project_domain_id default
-crudini --set /etc/neutron/metadata_agent.ini DEFAULT user_domain_id default
-crudini --set /etc/neutron/metadata_agent.ini DEFAULT project_name service
-crudini --set /etc/neutron/metadata_agent.ini DEFAULT username neutron
-crudini --set /etc/neutron/metadata_agent.ini DEFAULT password ${NEUTRON_PASS}
-
-# Configure the metadata host
+# Configure the metadata host and shared secret
 crudini --set /etc/neutron/metadata_agent.ini DEFAULT nova_metadata_ip ${COMPUTE_CONTROLLER_HOSTNAME}
-
-# Configure the metadata proxy shared secret
 crudini --set /etc/neutron/metadata_agent.ini DEFAULT metadata_proxy_shared_secret ${METADATA_SECRET}
 
 # Finalize installation
