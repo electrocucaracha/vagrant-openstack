@@ -63,6 +63,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       all_in_one.vm.network :forwarded_port, guest: 8386, host: 8386   # OpenStack Data Processing
       all_in_one.vm.network :forwarded_port, guest: 8774, host: 8774   # OpenStack Compute
       all_in_one.vm.network :forwarded_port, guest: 8776, host: 8776   # OpenStack Volume
+      all_in_one.vm.network :forwarded_port, guest: 8786, host: 8786   # OpenStack Shared File
       all_in_one.vm.network :forwarded_port, guest: 8777, host: 8777   # OpenStack Metering
       all_in_one.vm.network :forwarded_port, guest: 9696, host: 9696   # OpenStack Networking
       all_in_one.vm.network :forwarded_port, guest: 8080, host: 8080   # OpenStack Object Storage
