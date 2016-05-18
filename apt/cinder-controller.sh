@@ -8,14 +8,19 @@ cd /root/shared/setup
 
 # Block Storage services
 
-# 1. Install OpenStack Block Storage Service and dependencies
-apt-get install -y cinder-api cinder-scheduler python-cinderclient
+# Install OpenStack Block Storage Service and dependencies
+apt-get install -y cinder-api cinder-scheduler
 
 ./cinder.sh
+
+./cinder-compute.sh
 
 # Telemetry services
 
 ./configure_ceilometer_block_storage_controller.sh
+
+# Restart the Compute API service
+service nova-api restart
 
 # Restart the Block Storage services
 service cinder-scheduler restart

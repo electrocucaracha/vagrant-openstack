@@ -30,9 +30,9 @@ vgcreate cinder-volumes /dev/sdb1
 # 5. Add a filter that accepts the /dev/sdb device and rejects all other devices
 sed -i "s/filter = \[ \"a\/.*\/\"/filter = \[ \"a\/sdb\/\", \"r\/.\*\/\"/g" /etc/lvm/lvm.conf
 
-apt-get install -y cinder-volume python-mysqldb
+apt-get install -y cinder-volume
 
-./configure_cinder_storage.sh
+./cinder-storage.sh
 
 # Block storage - Telemetry services
 

@@ -17,11 +17,11 @@ openstack service create --name cinderv2 \
 
 # Create the Block Storage service API endpoints
 openstack endpoint create --region RegionOne \
-  volume public http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v2/%\(tenant_id\)s
+  volume public http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v1/%\(tenant_id\)s
 openstack endpoint create --region RegionOne \
-  volume internal http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v2/%\(tenant_id\)s
+  volume internal http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v1/%\(tenant_id\)s
 openstack endpoint create --region RegionOne \
-  volume admin http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v2/%\(tenant_id\)s
+  volume admin http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v1/%\(tenant_id\)s
 
 openstack endpoint create --region RegionOne \
   volumev2 public http://${BLOCK_STORAGE_CONTROLLER_HOSTNAME}:8776/v2/%\(tenant_id\)s
@@ -43,9 +43,10 @@ crudini --set /etc/cinder/cinder.conf oslo_messaging_rabbit rabbit_password ${RA
 crudini --set /etc/cinder/cinder.conf DEFAULT auth_strategy keystone
 crudini --set /etc/cinder/cinder.conf keystone_authtoken auth_uri http://${IDENTITY_HOSTNAME}:5000
 crudini --set /etc/cinder/cinder.conf keystone_authtoken auth_url http://${IDENTITY_HOSTNAME}:35357
-crudini --set /etc/cinder/cinder.conf keystone_authtoken auth_plugin password
-crudini --set /etc/cinder/cinder.conf keystone_authtoken project_domain_id default
-crudini --set /etc/cinder/cinder.conf keystone_authtoken user_domain_id default
+crudini --set /etc/cinder/cinder.conf keystone_authtoken memcached_servers ${MEMCACHED_HOSTNAME}:11211
+crudini --set /etc/cinder/cinder.conf keystone_authtoken auth_type password
+crudini --set /etc/cinder/cinder.conf keystone_authtoken project_domain_name default
+crudini --set /etc/cinder/cinder.conf keystone_authtoken user_domain_name default
 crudini --set /etc/cinder/cinder.conf keystone_authtoken project_name service
 crudini --set /etc/cinder/cinder.conf keystone_authtoken username cinder
 crudini --set /etc/cinder/cinder.conf keystone_authtoken password ${CINDER_PASS}
@@ -54,10 +55,7 @@ crudini --set /etc/cinder/cinder.conf keystone_authtoken password ${CINDER_PASS}
 crudini --set /etc/cinder/cinder.conf DEFAULT my_ip ${my_ip}
 
 # Configure the lock path
-crudini --set /etc/cinder/cinder.conf oslo_concurrency lock_path /var/lock/cinder
-
-# Configure key manager
-crudini --set /etc/cinder/cinder.conf keymgr encryption_auth_url http://${IDENTITY_HOSTNAME}:5000/v3
+crudini --set /etc/cinder/cinder.conf oslo_concurrency lock_path /var/lib/cinder/tmp
 
 # Populate the Block Storage database
 su -s /bin/sh -c "cinder-manage db sync" cinder
