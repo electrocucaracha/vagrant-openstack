@@ -24,4 +24,5 @@ service glance-api restart
 
 sleep 5
 
-./upload_cirros_image.sh
+#./upload_cirros_image.sh
+./upload_ubuntu_image.sh
