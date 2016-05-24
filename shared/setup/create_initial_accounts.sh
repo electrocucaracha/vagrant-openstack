@@ -15,7 +15,7 @@ openstack endpoint create --region RegionOne \
   identity public http://${IDENTITY_HOSTNAME}:5000/v3
 
 openstack endpoint create --region RegionOne \
-  identity internal http://${IDENTITY_HOSTNAME}::5000/v3
+  identity internal http://${IDENTITY_HOSTNAME}:5000/v3
 
 openstack endpoint create --region RegionOne \
   identity admin http://${IDENTITY_HOSTNAME}:35357/v3
