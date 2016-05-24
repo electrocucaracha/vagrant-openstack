@@ -9,15 +9,6 @@ openstack user create --domain default heat --password=${HEAT_PASS} --email=heat
 # Add the admin role to the heat user
 openstack role add --project service --user heat admin
 
-# Create the heat_stack_owner role
-openstack role create heat_stack_owner
-
-# Add the heat_stack_owner role to the demo project and user
-openstack role add --project demo --user demo heat_stack_owner
-
-# Create the heat_stack_user role
-openstack role create heat_stack_user
-
 # Create the heat and heat-cfn service entities
 openstack service create --name heat \
   --description "Orchestration" orchestration
@@ -39,6 +30,24 @@ openstack endpoint create --region RegionOne \
 openstack endpoint create --region RegionOne \
   cloudformation admin http://${ORCHESTRATION_HOSTNAME}:8000/v1
 
+# Create the heat domain that contains projects and users for stack
+openstack domain create --description "Stack projects and users" heat
+
+# Create the heat_domain_admin user to manage projects and users in the heat domain
+openstack user create --domain heat --password=${HEAT_DOMAIN_PASS} heat_domain_admin
+
+# Add the admin role to the heat_domain_admin user in the heat domain to enable administrative stack management privileges by the heat_domain_admin user
+openstack role add --domain heat --user-domain heat --user heat_domain_admin admin
+
+# Create the heat_stack_owner role
+openstack role create heat_stack_owner
+
+# Add the heat_stack_owner role to the demo project and user to enable stack management by the demo user
+openstack role add --project demo --user demo heat_stack_owner
+
+# Create the heat_stack_user role
+openstack role create heat_stack_user
+
 # Configure database access
 crudini --set /etc/heat/heat.conf database connection mysql+pymysql://heat:${HEAT_DBPASS}@${DATABASE_HOSTNAME}/heat
 
@@ -49,19 +58,25 @@ crudini --set /etc/heat/heat.conf oslo_messaging_rabbit rabbit_userid openstack
 crudini --set /etc/heat/heat.conf oslo_messaging_rabbit rabbit_password ${RABBIT_PASS}
 
 # Configure Identity service access
+crudini --set /etc/heat/heat.conf keystone_authtoken auth_uri http://${IDENTITY_HOSTNAME}:5000
 crudini --set /etc/heat/heat.conf keystone_authtoken auth_url http://${IDENTITY_HOSTNAME}:35357
-crudini --set /etc/heat/heat.conf keystone_authtoken auth_plugin password
-crudini --set /etc/heat/heat.conf keystone_authtoken project_domain_id default
-crudini --set /etc/heat/heat.conf keystone_authtoken user_domain_id default
+crudini --set /etc/heat/heat.conf keystone_authtoken memcached_servers ${MEMCACHED_HOSTNAME}:11211
+crudini --set /etc/heat/heat.conf keystone_authtoken auth_type password
+crudini --set /etc/heat/heat.conf keystone_authtoken project_domain_name default
+crudini --set /etc/heat/heat.conf keystone_authtoken user_domain_name default
 crudini --set /etc/heat/heat.conf keystone_authtoken project_name service
 crudini --set /etc/heat/heat.conf keystone_authtoken username heat
 crudini --set /etc/heat/heat.conf keystone_authtoken password ${HEAT_PASS}
-crudini --set /etc/heat/heat.conf keystone_authtoken auth_uri http://${IDENTITY_HOSTNAME}:5000/v2.0
-crudini --set /etc/heat/heat.conf keystone_authtoken identity_uri http://${IDENTITY_HOSTNAME}:35357
-crudini --set /etc/heat/heat.conf keystone_authtoken admin_tenant_name service
-crudini --set /etc/heat/heat.conf keystone_authtoken admin_user heat
-crudini --set /etc/heat/heat.conf keystone_authtoken admin_password ${HEAT_PASS}
-crudini --set /etc/heat/heat.conf ec2authtoken auth_uri http://${IDENTITY_HOSTNAME}:5000/v2.0
+
+crudini --set /etc/heat/heat.conf trustee auth_plugin password
+crudini --set /etc/heat/heat.conf trustee auth_url http://${IDENTITY_HOSTNAME}:35357
+crudini --set /etc/heat/heat.conf trustee username heat
+crudini --set /etc/heat/heat.conf trustee password ${HEAT_PASS}
+crudini --set /etc/heat/heat.conf trustee user_domain_name default
+
+crudini --set /etc/heat/heat.conf clients_keystone auth_uri http://${IDENTITY_HOSTNAME}:35357
+
+crudini --set /etc/heat/heat.conf ec2authtoken auth_uri http://${IDENTITY_HOSTNAME}:5000
 
 # Configure the metadata and wait condition URLs
 crudini --set /etc/heat/heat.conf DEFAULT heat_metadata_server_url http://${ORCHESTRATION_HOSTNAME}:8000
@@ -71,12 +86,6 @@ crudini --set /etc/heat/heat.conf DEFAULT heat_waitcondition_server_url http://$
 crudini --set /etc/heat/heat.conf DEFAULT stack_domain_admin heat_domain_admin
 crudini --set /etc/heat/heat.conf DEFAULT stack_domain_admin_password ${HEAT_DOMAIN_PASS}
 crudini --set /etc/heat/heat.conf DEFAULT stack_user_domain_name heat_user_domain
-
-# Create the heat domain in the Identity service
-heat-keystone-setup-domain \
-  --stack-user-domain-name heat_user_domain \
-  --stack-domain-admin heat_domain_admin \
-  --stack-domain-admin-password ${HEAT_DOMAIN_PASS}
 
 # Populate the Orchestration database
 su -s /bin/sh -c "heat-manage db_sync" heat
