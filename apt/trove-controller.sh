@@ -7,7 +7,9 @@ popd
 cd /root/shared/setup
 
 # Database services
-apt-get install -y python-trove python-troveclient python-glanceclient trove-common trove-api trove-taskmanager trove-conductor
+apt-get install -y python-trove python-troveclient \
+  python-glanceclient trove-common trove-api trove-taskmanager \
+  trove-conductor
 
 ./trove.sh
 
