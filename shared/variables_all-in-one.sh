@@ -19,6 +19,7 @@ export SHARED_FILE_STORAGE_CONTROLLER_HOSTNAME=all-in-one
 export OBJECT_STORAGE_CONTROLLER_HOSTNAME=all-in-one
 export NOSQL_DATABASE_HOSTNAME=all-in-one
 export TELEMETRY_CONTROLLER_HOSTNAME=all-in-one
+export ALARMING_HOSTNAME=all-in-one
 export ORCHESTRATION_HOSTNAME=all-in-one
 export DATABASE_CONTROLLER_HOSTNAME=all-in-one
 export DATA_HOSTNAME=all-in-one
@@ -26,6 +27,8 @@ export MEMCACHED_HOSTNAME=all-in-one
 export OPENDAYLIGHT_IP=${my_ip}
 
 # Service passwords
+export AODH_DBPASS=secure
+export AODH_PASS=secure
 export ROOT_DBPASS=secure
 export ADMIN_PASS=secure
 export CEILOMETER_DBPASS=secure

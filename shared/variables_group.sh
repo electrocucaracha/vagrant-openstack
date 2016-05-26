@@ -20,12 +20,15 @@ export OBJECT_STORAGE_CONTROLLER_HOSTNAME=controller-services
 export NOSQL_DATABASE_HOSTNAME=supporting-services
 export TELEMETRY_CONTROLLER_HOSTNAME=controller-services
 export ORCHESTRATION_HOSTNAME=controller-services
+export ALARMING_HOSTNAME=controller-services
 export DATABASE_CONTROLLER_HOSTNAME=controller-services
 export DATA_HOSTNAME=controller-services
 export MEMCACHED_HOSTNAME=controller-services
 export OPENDAYLIGHT_IP=${my_ip}
 
 # Service passwords
+export AODH_DBPASS=secure
+export AODH_PASS=secure
 export ROOT_DBPASS=secure
 export ADMIN_PASS=secure
 export CEILOMETER_DBPASS=secure

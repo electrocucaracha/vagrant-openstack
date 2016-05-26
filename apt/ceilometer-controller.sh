@@ -12,7 +12,6 @@ cd /root/shared/setup
 
 apt-get install -y ceilometer-api ceilometer-collector \
   ceilometer-agent-central ceilometer-agent-notification \
-  ceilometer-alarm-evaluator ceilometer-alarm-notifier \
   python-ceilometerclient mongodb-clients python-pymongo
 
 ./ceilometer.sh
@@ -21,5 +20,3 @@ service ceilometer-agent-central restart
 service ceilometer-agent-notification restart
 service ceilometer-api restart
 service ceilometer-collector restart
-service ceilometer-alarm-evaluator restart
-service ceilometer-alarm-notifier restart

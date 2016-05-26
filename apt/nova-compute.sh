@@ -6,15 +6,6 @@ popd
 ./repo.sh
 cd /root/shared/setup
 
-# Compute - Telemetry services
-
-apt-get install -y ceilometer-agent-compute
-
-./configure_ceilometer_compute.sh
-
-service ceilometer-agent-compute restart
-service nova-compute restart
-
 # Compute services
 
 # 1. Install compute packages
@@ -34,6 +25,15 @@ service libvirt-bin restart
 # Finalize installation
 service nova-compute restart
 rm -f /var/lib/nova/nova.sqlite
+
+# Compute - Telemetry services
+
+apt-get install -y ceilometer-agent-compute
+
+./configure_ceilometer_compute.sh
+
+service ceilometer-agent-compute restart
+service nova-compute restart
 
 # Network services
 

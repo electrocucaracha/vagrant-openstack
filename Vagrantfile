@@ -56,7 +56,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       all_in_one.vm.network :forwarded_port, guest: 5672, host: 5672   # RabbitMQ
       all_in_one.vm.network :forwarded_port, guest: 15672, host: 15672 # RabbitMQ Dashboard
       all_in_one.vm.network :forwarded_port, guest: 3306, host: 3306   # MariaDB
-      all_in_one.vm.network :forwarded_port, guest: 27017, host: 27017 # Libvirt
+      all_in_one.vm.network :forwarded_port, guest: 27017, host: 27017 # MongoDB
       all_in_one.vm.network :forwarded_port, guest: 5000, host: 5000   # OpenStack Identity
       all_in_one.vm.network :forwarded_port, guest: 35357, host: 35357 # OpenStack Identity
       all_in_one.vm.network :forwarded_port, guest: 9292, host: 9292   # OpenStack Image
@@ -65,6 +65,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       all_in_one.vm.network :forwarded_port, guest: 8776, host: 8776   # OpenStack Volume
       all_in_one.vm.network :forwarded_port, guest: 8786, host: 8786   # OpenStack Shared File
       all_in_one.vm.network :forwarded_port, guest: 8777, host: 8777   # OpenStack Metering
+      all_in_one.vm.network :forwarded_port, guest: 8042, host: 8042   # OpenStack Alarming
       all_in_one.vm.network :forwarded_port, guest: 9696, host: 9696   # OpenStack Networking
       all_in_one.vm.network :forwarded_port, guest: 8080, host: 8080   # OpenStack Object Storage
       all_in_one.vm.network :forwarded_port, guest: 8000, host: 8000   # OpenStack CloudFormation
@@ -73,7 +74,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       all_in_one.vm.network :forwarded_port, guest: 80, host: 8888     # OpenStack Dashboard
       all_in_one.vm.network :forwarded_port, guest: 6080, host: 6080   # VNC
       all_in_one.vm.provider "libvirt" do |v|
-        v.memory = 7 * 1024
+        v.memory = 8 * 1024
         v.nested = true
         v.cpu_mode = "host-passthrough"
         v.storage :file, path: 'extra', bus: 'sata', device: 'sda', size: '5M'
@@ -81,7 +82,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         v.storage :file, path: object_file_to_disk, bus: 'sata', device: 'sdc', size: '5G'
       end
       all_in_one.vm.provider "virtualbox" do |v|
-        v.customize ["modifyvm", :id, "--memory", 7 * 1024]
+        v.customize ["modifyvm", :id, "--memory", 8 * 1024]
         unless File.exist?(block_file_to_disk)
           v.customize ['createhd', '--filename', block_file_to_disk, '--size', 50 * 1024]
         end
