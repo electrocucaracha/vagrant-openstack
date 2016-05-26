@@ -74,7 +74,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       all_in_one.vm.network :forwarded_port, guest: 80, host: 8888     # OpenStack Dashboard
       all_in_one.vm.network :forwarded_port, guest: 6080, host: 6080   # VNC
       all_in_one.vm.provider "libvirt" do |v|
-        v.memory = 8 * 1024
+        v.memory = 9 * 1024
         v.nested = true
         v.cpu_mode = "host-passthrough"
         v.storage :file, path: 'extra', bus: 'sata', device: 'sda', size: '5M'
@@ -82,7 +82,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         v.storage :file, path: object_file_to_disk, bus: 'sata', device: 'sdc', size: '5G'
       end
       all_in_one.vm.provider "virtualbox" do |v|
-        v.customize ["modifyvm", :id, "--memory", 8 * 1024]
+        v.customize ["modifyvm", :id, "--memory", 9 * 1024]
         unless File.exist?(block_file_to_disk)
           v.customize ['createhd', '--filename', block_file_to_disk, '--size', 50 * 1024]
         end

@@ -39,19 +39,19 @@ address = ${my_ip}
 [account]
 max connections = 2
 path = /srv/node/
-read only = false
+read only = False
 lock file = /var/lock/account.lock
 
 [container]
 max connections = 2
 path = /srv/node/
-read only = false
+read only = False
 lock file = /var/lock/container.lock
 
 [object]
 max connections = 2
 path = /srv/node/
-read only = false
+read only = False
 lock file = /var/lock/object.lock
 EOL
 
