@@ -85,7 +85,7 @@ crudini --set /etc/heat/heat.conf DEFAULT heat_waitcondition_server_url http://$
 # Configure information about the heat Identity service domain
 crudini --set /etc/heat/heat.conf DEFAULT stack_domain_admin heat_domain_admin
 crudini --set /etc/heat/heat.conf DEFAULT stack_domain_admin_password ${HEAT_DOMAIN_PASS}
-crudini --set /etc/heat/heat.conf DEFAULT stack_user_domain_name heat_user_domain
+crudini --set /etc/heat/heat.conf DEFAULT stack_user_domain_name heat
 
 # Populate the Orchestration database
 su -s /bin/sh -c "heat-manage db_sync" heat
