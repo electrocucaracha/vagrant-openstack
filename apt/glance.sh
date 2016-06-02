@@ -21,8 +21,3 @@ rm -f /var/lib/glance/glance.sqlite
 # 2. Restart services
 service glance-registry restart
 service glance-api restart
-
-sleep 5
-
-#./upload_cirros_image.sh
-./upload_ubuntu_image.sh
