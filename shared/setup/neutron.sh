@@ -102,7 +102,7 @@ crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini securitygroup firew
 
 # Configure the Linux bridge interface driver and external network bridge
 crudini --set /etc/neutron/l3_agent.ini DEFAULT interface_driver neutron.agent.linux.interface.BridgeInterfaceDriver
-crudini --del /etc/neutron/l3_agent.ini DEFAULT external_network_bridge
+crudini --set /etc/neutron/l3_agent.ini DEFAULT external_network_bridge " "
 
 # Configure the DHCP agent
 
