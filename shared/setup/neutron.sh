@@ -21,6 +21,16 @@ openstack endpoint create --region RegionOne \
 openstack endpoint create --region RegionOne \
   network admin http://${NETWORKING_CONTROLLER_HOSTNAME}:9696
 
+if [ ! -z ${INSTALL_OPENVSWITCH} ] && [ ${INSTALL_OPENVSWITCH} == "True" ]; then
+  ovs-vsctl add-br br-int
+  ovs-vsctl add-br br-eth2
+  ovs-vsctl add-port br-eth2 eth2
+  ifconfig br-eth2 10.10.1.2 netmask 255.255.255.0
+  ovs-vsctl add-br br-ex
+  ovs-vsctl add-port br-ex eth3
+  ifconfig br-ex 192.168.50.2 netmask 255.255.255.0
+fi
+
 # Configure database access
 crudini --set /etc/neutron/neutron.conf database connection mysql+pymysql://neutron:${NEUTRON_DBPASS}@${DATABASE_HOSTNAME}/neutron
 
@@ -100,9 +110,13 @@ crudini --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini securitygroup firew
 
 # Configure the layer-3 agent
 
-# Configure the Linux bridge interface driver and external network bridge
-crudini --set /etc/neutron/l3_agent.ini DEFAULT interface_driver neutron.agent.linux.interface.BridgeInterfaceDriver
-crudini --set /etc/neutron/l3_agent.ini DEFAULT external_network_bridge " "
+if [ ! -z ${INSTALL_OPENVSWITCH} ] && [ ${INSTALL_OPENVSWITCH} == "True" ]; then
+
+else
+  # Configure the Linux bridge interface driver and external network bridge
+  crudini --set /etc/neutron/l3_agent.ini DEFAULT interface_driver neutron.agent.linux.interface.BridgeInterfaceDriver
+  crudini --set /etc/neutron/l3_agent.ini DEFAULT external_network_bridge " "
+fi
 
 # Configure the DHCP agent
 

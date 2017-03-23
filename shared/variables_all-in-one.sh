@@ -6,6 +6,7 @@ export my_nic=`ip route get 192.168.50.1 | awk '{ print $3; exit }'`
 export my_ip=`ip route get 192.168.50.1 | awk '{ print $NF; exit }'`
 
 export ENABLE_PROFILER="False"
+export INSTALL_OPENVSWITCH="False"
 
 # List of hostnames
 export MESSAGE_BROKER_HOSTNAME=all-in-one
