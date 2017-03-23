@@ -6,7 +6,7 @@ conf = {
 #  'deployment-style'                => 'group',
 #  'deployment-style'                => 'microservices',
 #  'deployment-style'                => 'containerize',
-  'vagrant-box'                     => 'ubuntu/trusty64',
+  'vagrant-box'                     => 'sputnik13/trusty64',
   'package-manager'                 => 'apt',
   'storage-controller'              => 'SATAController',
   'message-broker-script'           => '/rabbitmq.sh',
@@ -52,7 +52,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     config.vm.define :all_in_one do |all_in_one|
       all_in_one.vm.hostname = 'all-in-one'
-      all_in_one.vm.network :private_network, ip: '192.168.50.2'
+
+      all_in_one.vm.network :private_network, ip: "172.16.0.2", netmask: "255.255.0.0", auto_config: true       # Managment network
+      all_in_one.vm.network :private_network, ip: "10.10.0.2", netmas: "255.255.255.0", auto_config: true       # Neutron network
+      all_in_one.vm.network :private_network, ip: "192.168.50.2", netmask: "255.255.255.0", auto_config: true   # Public and External network
+
       all_in_one.vm.network :forwarded_port, guest: 5672, host: 5672   # RabbitMQ
       all_in_one.vm.network :forwarded_port, guest: 15672, host: 15672 # RabbitMQ Dashboard
       all_in_one.vm.network :forwarded_port, guest: 3306, host: 3306   # MariaDB
@@ -74,7 +78,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       all_in_one.vm.network :forwarded_port, guest: 80, host: 8888     # OpenStack Dashboard
       all_in_one.vm.network :forwarded_port, guest: 6080, host: 6080   # VNC
       all_in_one.vm.provider "libvirt" do |v|
-        v.memory = 9 * 1024
+        v.memory = 10 * 1024
+        v.cpus = 4
         v.nested = true
         v.cpu_mode = "host-passthrough"
         v.storage :file, path: 'extra', bus: 'sata', device: 'sda', size: '5M'
@@ -82,7 +87,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         v.storage :file, path: object_file_to_disk, bus: 'sata', device: 'sdc', size: '5G'
       end
       all_in_one.vm.provider "virtualbox" do |v|
-        v.memory = 9 * 1024
+        v.memory = 10 * 1024
         v.cpus = 4
         v.customize ["modifyvm", :id, "--cpuexecutioncap", "80"]
         unless File.exist?(block_file_to_disk)
