@@ -4,8 +4,9 @@
 export CONFIGURATION="_all-in-one"
 cd /root/scripts
 
-./rabbitmq.sh
 ./mariadb.sh
+./rabbitmq.sh
+./memcached.sh
 ./mongodb.sh
 ./opendaylight.sh
 
