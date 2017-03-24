@@ -4,16 +4,24 @@ cd /root/shared
 source configure.sh
 cd setup
 
-apt-get update -y && apt-get dist-upgrade -y
+apt-get update -y 
 
 # 1. Install database server
 debconf-set-selections <<< "mysql-server mysql-server/root_password password ${ROOT_DBPASS}"
 debconf-set-selections <<< "mysql-server mysql-server/root_password_again password ${ROOT_DBPASS}"
-apt-get install -y mariadb-server
+apt-get install -y mariadb-server python-pymysql
 
 # 2. Configure remote access
-sed -i "s/127.0.0.1/0.0.0.0/g" /etc/mysql/my.cnf
-sed -i "s/\[mysqld\]/\[mysqld\]\ndefault-storage-engine = innodb\ninnodb_file_per_table\ncollation-server = utf8_general_ci\ninit-connect = 'SET NAMES utf8'\ncharacter-set-server = utf8/g" /etc/mysql/my.cnf
+cat <<EOL > /etc/mysql/mariadb.conf.d/99-openstack.cnf
+[mysqld]
+bind-address = 0.0.0.0
+
+default-storage-engine = innodb
+innodb_file_per_table = on
+max_connections = 4096
+collation-server = utf8_general_ci
+character-set-server = utf8
+EOL
 
 service mysql restart
 
