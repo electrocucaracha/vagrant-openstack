@@ -1,6 +1,6 @@
 # OpenStack 
 
-This vagrant project pretends to collect information about different ways to deploy OpenStack Project.  It was created only for didactic purposes. For more information about OpenStack, take a look of [the official site] (http://www.openstack.org/).
+This vagrant project pretends to collect information about different ways to deploy OpenStack Project.  It was created only for didactic purposes. For more information about OpenStack, take a look of [the official site](http://www.openstack.org/).
 
 ## Requirements:
 
